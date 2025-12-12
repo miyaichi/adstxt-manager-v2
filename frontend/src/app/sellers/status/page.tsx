@@ -59,8 +59,10 @@ export default function SellersStatusPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center p-8">Loading...</div>
-          ) : !data || data.length === 0 ? (
-            <div className="text-muted-foreground p-8 text-center">No scans found yet.</div>
+          ) : !data || !Array.isArray(data) || data.length === 0 ? (
+            <div className="text-muted-foreground p-8 text-center">
+              {data && !Array.isArray(data) ? "Failed to load data." : "No scans found yet."}
+            </div>
           ) : (
             <Table>
               <TableHeader>
