@@ -1,0 +1,158 @@
+import cron from 'node-cron';
+import { query } from '../db/client';
+import { StreamImporter } from '../ingest/stream_importer';
+import { parseAdsTxtContent } from '../lib/adstxt/validator';
+import { AdsTxtScanner } from '../services/adstxt_scanner';
+import { MonitoredDomainsService } from '../services/monitored_domains';
+
+const monitoredDomainsService = new MonitoredDomainsService();
+const scanner = new AdsTxtScanner();
+
+// 処理中のロック（簡易版）
+let isJobRunning = false;
+
+// 環境変数からDB接続文字列を取得
+const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:password@localhost:5433/adstxt_v2';
+
+export function setupCronJobs() {
+  console.log('Setting up cron jobs...');
+
+  // 1分ごとに実行 (開発中のため高頻度)
+  cron.schedule('*/1 * * * *', async () => {
+    if (isJobRunning) {
+      console.log('Job is already running, skipping...');
+      return;
+    }
+    isJobRunning = true;
+    console.log('Starting scheduled jobs...');
+
+    try {
+      // 1. Monitored Ads.txt Scans
+      await processMonitoredDomains();
+
+      // 2. Sync Sellers.json
+      await processMissingSellers();
+    } catch (e) {
+      console.error('Job failed:', e);
+    } finally {
+      isJobRunning = false;
+      console.log('Scheduled jobs finished');
+    }
+  });
+}
+
+/**
+ * モニタリング対象のドメインのads.txtをスキャンする
+ */
+async function processMonitoredDomains() {
+  console.log('Checking for monitored domains due for scan...');
+  const dueDomains = await monitoredDomainsService.getDueDomains();
+  console.log(`Found ${dueDomains.length} domains due for ads.txt scan.`);
+
+  for (const item of dueDomains) {
+    console.log(`Scanning ads.txt for monitored domain: ${item.domain}`);
+    try {
+      const result = await scanner.scanAndSave(item.domain);
+      console.log(`Scan completed for ${item.domain} (ID: ${result.id})`);
+      await monitoredDomainsService.updateLastScanned(item.domain);
+
+      // Wait to be polite
+      await new Promise((r) => setTimeout(r, 1000));
+    } catch (e: any) {
+      console.error(`Failed to scan ${item.domain}: ${e.message}`);
+      // Even if failed, update last scanned so we don't retry immediately?
+      // Or maybe we want to retry. For now, let's update so we try again after interval.
+      // But if it's permanent error, we might spin.
+      // Let's update last_scanned_at anyway to respect interval.
+      await monitoredDomainsService.updateLastScanned(item.domain);
+    }
+  }
+}
+
+/**
+ * Ads.txtの履歴から、まだ取り込んでいないSellers.jsonドメインを探して取り込む
+ */
+async function processMissingSellers() {
+  // 1. ads.txtの履歴からユニークなドメインリスト（Relationship=DIRECT/RESELLER の system domain）を抽出
+  //    本来はバリデーション済みの結果を使うべきだが、ここでは簡易的に ads_txt_scans の最新コンテンツをパースする
+
+  // 最近スキャンされたドメインを取得 (直近1時間とかにするのが良いが、まずは全件から最新1件ずつ)
+  const scansRes = await query(`
+        SELECT DISTINCT ON (domain) domain, content 
+        FROM ads_txt_scans 
+        WHERE content IS NOT NULL AND content != ''
+        ORDER BY domain, scanned_at DESC
+    `);
+
+  // 抽出された供給元ドメイン (google.com, rubiconproject.com etc...)
+  const supplyDomains = new Set<string>();
+
+  for (const scan of scansRes.rows) {
+    const entries = parseAdsTxtContent(scan.content, scan.domain);
+    for (const entry of entries) {
+      // Ads.txt Recordかつ、domainが有効なもの
+      if ('domain' in entry && entry.domain && entry.domain.includes('.')) {
+        supplyDomains.add(entry.domain.toLowerCase().trim());
+      }
+    }
+  }
+
+  console.log(`Found ${supplyDomains.size} unique supply domains from scanned ads.txt files`);
+
+  // 2. 既に raw_sellers_files に取り込み済みのドメインを確認 (直近24時間以内とみなす)
+  //    今回は「一度も取り込んでいない」または「古すぎる(例えば7日以上前)」ものを対象とする
+
+  const importer = new StreamImporter(DATABASE_URL);
+
+  try {
+    for (const supplyDomain of supplyDomains) {
+      // チェック：最近取り込まれたか？
+      const checkRes = await query(
+        `
+                SELECT fetched_at FROM raw_sellers_files 
+                WHERE domain = $1 
+                ORDER BY fetched_at DESC LIMIT 1
+            `,
+        [supplyDomain],
+      );
+
+      let needsUpdate = false;
+      if (checkRes.rows.length === 0) {
+        needsUpdate = true;
+      } else {
+        const lastFetched = new Date(checkRes.rows[0].fetched_at).getTime();
+        const diff = new Date().getTime() - lastFetched;
+        // 7 days
+        if (diff > 7 * 24 * 60 * 60 * 1000) {
+          needsUpdate = true;
+          console.log(
+            `Re-fetching outdated sellers.json for ${supplyDomain} (Age: ${Math.round(diff / (1000 * 60 * 60 * 24))} days)`,
+          );
+        }
+      }
+
+      if (needsUpdate) {
+        console.log(`Fetching sellers.json for domain: ${supplyDomain}`);
+        try {
+          // 基本的には https://{domain}/sellers.json
+          // TODO: リダイレクトやHTTPフォールバックなどの堅牢性は importer 内またはここで担保
+          const target = {
+            domain: supplyDomain,
+            url: `https://${supplyDomain}/sellers.json`,
+          };
+
+          await importer.importSellersJson(target);
+          console.log(`Successfully imported ${supplyDomain}`);
+
+          // 連続アクセスでBANされないよう少しWait
+          await new Promise((r) => setTimeout(r, 2000));
+        } catch (err: any) {
+          console.error(`Failed to import ${supplyDomain}: ${err.message}`);
+          // 個別の失敗はログに出して次へ進む
+        }
+      }
+    }
+  } finally {
+    await importer.close();
+  }
+}

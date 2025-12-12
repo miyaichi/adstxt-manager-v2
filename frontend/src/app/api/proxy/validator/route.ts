@@ -4,17 +4,24 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.toString()
 
-  // Backend Containerへプロキシ (Dockerネットワーク内通信)
-  // ローカル開発時は localhost:3000 、Docker内からは http://backend:3000
-  // Next.jsがホスト側で動いている場合は localhost:3000 でOK（ポート転送されているため）
   const backendUrl = process.env.BACKEND_URL || "http://localhost:3000"
 
   try {
-    const res = await fetch(`${backendUrl}/api/sellers?${query}`, {
+    const res = await fetch(`${backendUrl}/api/adstxt/validate?${query}`, {
       cache: "no-store"
     })
-    const data = await res.json()
 
+    // Pass through status code
+    if (!res.ok) {
+      try {
+        const errorData = await res.json()
+        return NextResponse.json(errorData, { status: res.status })
+      } catch {
+        return NextResponse.json({ error: "Upstream error" }, { status: res.status })
+      }
+    }
+
+    const data = await res.json()
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch" }, { status: 500 })

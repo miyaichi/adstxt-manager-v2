@@ -33,13 +33,14 @@ export class StreamImporter {
       const response = await axios({
         method: 'get',
         url: options.url,
-        responseType: 'stream'
+        responseType: 'stream',
       });
 
       // 3. COPYストリームの準備
       // CSV形式でCOPY (テキストモードの方が扱いやすい場合もあるが、セパレータ等に注意)
       // ここではTEXT形式で、TAB区切りとする
-      const ingestStream = client.query(copyFrom(`
+      const ingestStream = client.query(
+        copyFrom(`
         COPY sellers_catalog (
           seller_id, 
           domain, 
@@ -48,7 +49,8 @@ export class StreamImporter {
           is_confidential, 
           raw_file_id
         ) FROM STDIN
-      `));
+      `),
+      );
 
       // 4. ストリームパイプラインの構築
       // HTTP Response -> JSON Parser -> Pick 'sellers' -> StreamArray -> Transform to TSV -> DB Copy Stream
@@ -65,20 +67,20 @@ export class StreamImporter {
             const sellerId = (seller.seller_id || '').toString().trim();
             const sellerType = (seller.seller_type || '').toString().trim();
             const name = (seller.name || '').toString().replace(/\t/g, ' ').replace(/\n/g, ' ').trim(); // TABや改行を除去
-            const isConfidential = seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1';
+            const isConfidential =
+              seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1';
 
             // TSV行を作成 (NULL等の処理が必要ならここで行う)
             // seller_id, domain, seller_type, name, is_confidential, raw_file_id
             const row = `${sellerId}\t${options.domain}\t${sellerType}\t${name}\t${isConfidential}\t${rawFileId}\n`;
 
             callback(null, row);
-          }
+          },
         }),
-        ingestStream
+        ingestStream,
       );
 
       console.log(`Import completed for ${options.domain}`);
-
     } catch (err) {
       console.error(`Error importing ${options.domain}:`, err);
       throw err;
@@ -88,11 +90,14 @@ export class StreamImporter {
   }
 
   private async createRawFileRecord(client: PoolClient, domain: string): Promise<string> {
-    const res = await client.query(`
+    const res = await client.query(
+      `
       INSERT INTO raw_sellers_files (domain, fetched_at)
       VALUES ($1, NOW())
       RETURNING id
-    `, [domain]);
+    `,
+      [domain],
+    );
 
     // ON CONFLICT時はRETURNINGが空になる可能性があるので注意（ここでは簡易実装）
     if (res.rows.length > 0) {

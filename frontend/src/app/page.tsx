@@ -2,28 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable
-} from "@tanstack/react-table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { Loader2, Search } from "lucide-react"
 import { useState } from "react"
 import useSWR from "swr"
@@ -60,21 +42,18 @@ export default function SellersPage() {
     setDebouncedKeyword(keyword)
   }
 
-  const { data, error, isLoading } = useSWR<APIResponse>(
-    `/api/proxy/sellers?q=${debouncedKeyword}&limit=20`,
-    fetcher
-  )
+  const { data, error, isLoading } = useSWR<APIResponse>(`/api/proxy/sellers?q=${debouncedKeyword}&limit=20`, fetcher)
 
   const columns: ColumnDef<Seller>[] = [
     {
       accessorKey: "domain",
       header: "Domain",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("domain")}</div>,
+      cell: ({ row }) => <div className="font-medium">{row.getValue("domain")}</div>
     },
     {
       accessorKey: "seller_id",
       header: "Seller ID",
-      cell: ({ row }) => <div className="font-mono text-xs">{row.getValue("seller_id")}</div>,
+      cell: ({ row }) => <div className="font-mono text-xs">{row.getValue("seller_id")}</div>
     },
     {
       accessorKey: "name",
@@ -83,31 +62,28 @@ export default function SellersPage() {
         <div className="max-w-[300px] truncate" title={row.getValue("name")}>
           {row.getValue("name") || <span className="text-muted-foreground italic">(No Name)</span>}
         </div>
-      ),
+      )
     },
     {
       accessorKey: "seller_type",
       header: "Type",
       cell: ({ row }) => {
         const type = row.getValue("seller_type") as string
-        return (
-          <Badge variant={type === "PUBLISHER" ? "default" : "secondary"}>
-            {type}
-          </Badge>
-        )
-      },
+        return <Badge variant={type === "PUBLISHER" ? "default" : "secondary"}>{type}</Badge>
+      }
     },
     {
       accessorKey: "is_confidential",
       header: "Confidential",
-      cell: ({ row }) => (
+      cell: ({ row }) =>
         row.getValue("is_confidential") ? (
-          <Badge variant="destructive" className="text-[10px]">Confidential</Badge>
+          <Badge variant="destructive" className="text-[10px]">
+            Confidential
+          </Badge>
         ) : (
           <span className="text-muted-foreground text-xs">-</span>
         )
-      ),
-    },
+    }
   ]
 
   const table = useReactTable({
@@ -116,7 +92,7 @@ export default function SellersPage() {
     getCoreRowModel: getCoreRowModel(),
     // PaginationはServer Sideで行うため、ここでは表示用のみ
     manualPagination: true,
-    pageCount: data?.meta.pages || -1,
+    pageCount: data?.meta.pages || -1
   })
 
   return (
@@ -139,7 +115,7 @@ export default function SellersPage() {
               placeholder="Search..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
             <Button onClick={handleSearch}>
               <Search className="mr-2 h-4 w-4" /> Search
@@ -161,12 +137,7 @@ export default function SellersPage() {
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     )
                   })}
@@ -176,14 +147,9 @@ export default function SellersPage() {
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                 ))

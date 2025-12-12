@@ -45,3 +45,34 @@ npm run ingest
 ```bash
 docker exec -it adstxt-v2-db psql -U postgres -d adstxt_v2 -c "SELECT count(*) FROM sellers_catalog;"
 ```
+
+## Running the Application
+
+### Backend API & Scheduler
+
+Starts the API server (default port 3001) and the Cron Scheduler (runs every minute).
+
+```bash
+cd backend
+npm run build
+npm start
+```
+
+### Frontend UI
+
+Starts the Next.js frontend (default port 3000).
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Features
+
+- **Sellers Search**: Performant search over 1M+ seller records.
+- **Ads.txt Validator**: Fetch, parse, and cross-check ads.txt files against sellers.json.
+- **Scan History**: View historical scans and their results.
+- **Monitoring**: Schedule periodic ads.txt scans for specific domains.
+  - Manage monitored domains via the "Monitor" UI or API.
+  - Automatically fetches updated sellers.json for supply sources found in scanned ads.txt.
