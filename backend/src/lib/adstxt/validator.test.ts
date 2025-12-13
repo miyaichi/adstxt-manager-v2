@@ -67,7 +67,7 @@ describe('Ads.txt Validator', () => {
 
       expect(result).not.toBeNull();
       expect(result?.is_valid).toBe(false);
-      // @ts-expect-error Testing error property on potentially null object
+      // Testing error property on potentially null object
       expect(result?.error).toBe(VALIDATION_KEYS.MISSING_FIELDS);
     });
 
@@ -77,7 +77,7 @@ describe('Ads.txt Validator', () => {
 
       expect(result).not.toBeNull();
       expect(result?.is_valid).toBe(false);
-      // @ts-expect-error Testing error property
+      // Testing error property
       expect(result?.error).toBe(VALIDATION_KEYS.INVALID_FORMAT);
     });
 
@@ -87,7 +87,7 @@ describe('Ads.txt Validator', () => {
 
       expect(result).not.toBeNull();
       expect(result?.is_valid).toBe(false);
-      // @ts-expect-error Testing error property
+      // Testing error property
       expect(result?.error).toBe(VALIDATION_KEYS.INVALID_RELATIONSHIP);
     });
 
@@ -132,7 +132,7 @@ CONTACT=email@example.com
       const result = parseAdsTxtContent('');
       expect(result.length).toBe(1);
       expect(result[0].is_valid).toBe(false);
-      // @ts-expect-error Testing error property
+      // Testing error property
       expect(result[0].error).toBe(VALIDATION_KEYS.EMPTY_FILE);
     });
 
@@ -142,8 +142,8 @@ CONTACT=email@example.com
 
       const ownerDomain = result.find((e) => 'variable_type' in e && e.variable_type === 'OWNERDOMAIN');
       expect(ownerDomain).toBeDefined();
-      // @ts-expect-error Testing value property
-      expect(ownerDomain.value).toBe('example.com');
+      // Testing value property
+      expect((ownerDomain as any).value).toBe('example.com');
     });
 
     test('should NOT auto-add OWNERDOMAIN if already present', () => {
@@ -155,8 +155,8 @@ OWNERDOMAIN=existing.com
 
       const ownerDomains = result.filter((e) => 'variable_type' in e && e.variable_type === 'OWNERDOMAIN');
       expect(ownerDomains.length).toBe(1);
-      // @ts-expect-error Testing value property
-      expect(ownerDomains[0].value).toBe('existing.com');
+      // Testing value property
+      expect((ownerDomains[0] as any).value).toBe('existing.com');
     });
   });
 });

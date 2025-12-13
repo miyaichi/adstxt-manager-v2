@@ -15,6 +15,16 @@ let isJobRunning = false;
 // 環境変数からDB接続文字列を取得
 const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:password@localhost:5433/adstxt_v2';
 
+const SPECIAL_DOMAINS: Record<string, string> = {
+  // Google
+  'google.com': 'https://storage.googleapis.com/adx-rtb-dictionaries/sellers.json',
+  'doubleclick.net': 'https://storage.googleapis.com/adx-rtb-dictionaries/sellers.json',
+  'googlesyndication.com': 'https://storage.googleapis.com/adx-rtb-dictionaries/sellers.json',
+
+  // AOL / Verizon Group
+  'advertising.com': 'https://dragon-advertising.com/sellers.json',
+};
+
 export function setupCronJobs() {
   console.log('Setting up cron jobs...');
 
@@ -141,11 +151,17 @@ async function processMissingSellers() {
       if (needsUpdate) {
         console.log(`Fetching sellers.json for domain: ${supplyDomain}`);
         try {
-          // 基本的には https://{domain}/sellers.json
-          // TODO: リダイレクトやHTTPフォールバックなどの堅牢性は importer 内またはここで担保
+          let url = `https://${supplyDomain}/sellers.json`;
+
+          // Use special URL if defined
+          if (supplyDomain in SPECIAL_DOMAINS) {
+            url = SPECIAL_DOMAINS[supplyDomain];
+            console.log(`Using special URL for ${supplyDomain}: ${url}`);
+          }
+
           const target = {
             domain: supplyDomain,
-            url: `https://${supplyDomain}/sellers.json`,
+            url,
           };
 
           await importer.importSellersJson(target);

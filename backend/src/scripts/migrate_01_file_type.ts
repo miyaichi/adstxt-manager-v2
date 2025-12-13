@@ -1,4 +1,3 @@
-
 import { pool } from '../db/client';
 
 async function migrate() {
@@ -28,7 +27,6 @@ async function migrate() {
       CREATE INDEX IF NOT EXISTS idx_ads_txt_scans_type ON ads_txt_scans(file_type);
     `);
     console.log('Index ensured.');
-
   } catch (err: any) {
     console.error('Migration failed:', err.message);
   } finally {
