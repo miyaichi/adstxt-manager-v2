@@ -4,6 +4,7 @@ import { StreamImporter } from '../ingest/stream_importer';
 import { parseAdsTxtContent } from '../lib/adstxt/validator';
 import { AdsTxtScanner } from '../services/adstxt_scanner';
 import { MonitoredDomainsService } from '../services/monitored_domains';
+import { runCleanup } from './cleanup';
 
 const monitoredDomainsService = new MonitoredDomainsService();
 const scanner = new AdsTxtScanner();
@@ -35,9 +36,15 @@ export function setupCronJobs() {
     } catch (e) {
       console.error('Job failed:', e);
     } finally {
-      isJobRunning = false;
       console.log('Scheduled jobs finished');
     }
+  });
+
+  // 毎日深夜 3:00 にクリーンアップを実行
+  cron.schedule('0 3 * * *', async () => {
+    console.log('Starting daily cleanup job...');
+    await runCleanup();
+    console.log('Daily cleanup job finished');
   });
 }
 

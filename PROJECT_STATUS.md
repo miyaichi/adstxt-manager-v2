@@ -38,8 +38,9 @@
 2.  **エラーハンドリングとリトライ戦略の強化**: ✅ Completed
     - `axios-retry` を導入し、ネットワークエラー、5xxエラー、429 Too Many Requests に対する指数バックオフリトライを実装。
     - 全ての外向きHTTPリクエスト (`adstxt_scanner`, `stream_importer`, `api/adstxt`) を共通のHTTPクライアント経由に統一。
-3.  **データクリーンアップ処理**:
-    - 定期実行で溜まり続ける `raw_sellers_files` や `ads_txt_scans` の古いデータのアーカイブまたは削除処理の実装。
+3.  **データクリーンアップ処理**: ✅ Completed
+    - 定期実行で溜まり続ける `raw_sellers_files` (30日経過) や `ads_txt_scans` (90日経過) の古いデータを削除するジョブを実装。
+    - 毎日深夜 3:00 に実行されるようスケジューリング。
 
 ### 優先度: 中 (Medium)
 4.  **UI/UXの改善**:
