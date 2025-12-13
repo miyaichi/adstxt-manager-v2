@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { query } from '../db/client';
 import { parseAdsTxtContent } from '../lib/adstxt/validator';
+import client from '../lib/http';
 
 export interface ScanResult {
   id: string;
@@ -29,23 +29,38 @@ export class AdsTxtScanner {
       // 1. Fetch
       try {
         finalUrl = `https://${domain}/ads.txt`;
-        const res = await axios.get(finalUrl, { timeout: 10000, maxRedirects: 5 });
+        const res = await client.get(finalUrl, { maxRedirects: 5 });
         content = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
         statusCode = res.status;
       } catch (e: any) {
         // Fallback to HTTP
         try {
           finalUrl = `http://${domain}/ads.txt`;
-          const res = await axios.get(finalUrl, { timeout: 10000, maxRedirects: 5 });
+          const res = await client.get(finalUrl, { maxRedirects: 5 });
           content = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
           statusCode = res.status;
         } catch (inner: any) {
           statusCode = inner.response?.status || 0;
           errorMessage = inner.message;
-          // Throw if both failed, but we might want to save the failure record
           throw inner;
         }
       }
+
+      // 2. Simple Parse for Stats
+      const parsed = parseAdsTxtContent(content, domain);
+      const recordsCount = parsed.length;
+      const validCount = parsed.filter((r) => r.is_valid).length;
+
+      // 3. Save Success
+      const res = await query(
+        `INSERT INTO ads_txt_scans 
+         (domain, url, content, status_code, records_count, valid_count, warning_count, scanned_at)
+         VALUES ($1, $2, $3, $4, $5, $6, 0, NOW())
+         RETURNING *`,
+        [domain, finalUrl, content, statusCode, recordsCount, validCount],
+      );
+      return res.rows[0];
+
     } catch (err: any) {
       // Save failed scan record
       const failRes = await query(
@@ -57,26 +72,6 @@ export class AdsTxtScanner {
       );
       return failRes.rows[0];
     }
-
-    // 2. Simple Parse for Stats (No cross-check here, just basic syntax validity stats)
-    // Cross-check depends on the VIEWING context (which sellers.json to check against).
-    // For storing stats in DB, we just count parsable records.
-    const parsed = parseAdsTxtContent(content, domain);
-    const recordsCount = parsed.length;
-    // Note: without cross-check, 'is_valid' is syntax check only (missing fields, invalid chars)
-    // 'has_warning' usually comes from cross-check, so it will be count of syntax warnings here
-    const validCount = parsed.filter((r) => r.is_valid).length;
-
-    // 3. Save
-    const res = await query(
-      `INSERT INTO ads_txt_scans 
-         (domain, url, content, status_code, records_count, valid_count, warning_count, scanned_at)
-         VALUES ($1, $2, $3, $4, $5, $6, 0, NOW()) -- warning_count 0 for now as it requires cross-check
-         RETURNING *`,
-      [domain, finalUrl, content, statusCode, recordsCount, validCount],
-    );
-
-    return res.rows[0];
   }
 
   async getLatestScan(domain: string): Promise<ScanResult | null> {

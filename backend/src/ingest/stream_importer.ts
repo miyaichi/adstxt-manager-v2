@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Pool, PoolClient } from 'pg';
 import { from as copyFrom } from 'pg-copy-streams';
 import { Transform } from 'stream';
@@ -6,6 +5,7 @@ import { parser } from 'stream-json';
 import { pick } from 'stream-json/filters/Pick';
 import { streamArray } from 'stream-json/streamers/StreamArray';
 import { pipeline } from 'stream/promises';
+import httpClient from '../lib/http';
 
 interface ImportOptions {
   domain: string;
@@ -27,7 +27,7 @@ export class StreamImporter {
 
     try {
       // 2. HTTP Stream取得
-      const response = await axios({
+      const response = await httpClient({
         method: 'get',
         url: options.url,
         responseType: 'stream',

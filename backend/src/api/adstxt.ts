@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
-import axios from 'axios';
 import { createValidationMessage } from '../lib/adstxt/messages';
 import { crossCheckAdsTxtRecords, parseAdsTxtContent } from '../lib/adstxt/validator';
+import client from '../lib/http';
 import { AdsTxtScanner } from '../services/adstxt_scanner';
 import { DbSellersProvider } from '../services/db_sellers_provider';
 
@@ -96,11 +96,12 @@ app.openapi(validateRoute, async (c) => {
     try {
       try {
         finalUrl = `https://${domain}/ads.txt`;
-        const res = await axios.get(finalUrl, { timeout: 10000, maxRedirects: 5 });
+        const res = await client.get(finalUrl, { maxRedirects: 5 });
         content = res.data;
       } catch {
+        // Fallback to HTTP
         finalUrl = `http://${domain}/ads.txt`;
-        const res = await axios.get(finalUrl, { timeout: 10000, maxRedirects: 5 });
+        const res = await client.get(finalUrl, { maxRedirects: 5 });
         content = res.data;
       }
       if (typeof content !== 'string') content = JSON.stringify(content);
