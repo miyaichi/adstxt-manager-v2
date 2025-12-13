@@ -40,6 +40,32 @@ npm run ingest
 - `raw_sellers_files`: Metadata of fetched files.
 - `sellers_catalog`: Normalized sellers data for search.
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    User[User / Frontend] -->|API Request| API[Hono API Server]
+    API -->|Validation/Scan| Scanner[AdsTxtScanner Service]
+    API -->|Query| DB[(PostgreSQL)]
+    
+    Scheduler[Cron Scheduler] -->|Trigger| Scanner
+    Scheduler -->|Trigger| Importer[StreamImporter Service]
+    
+    Scanner -->|Fetch ads.txt| External[External Domains]
+    Importer -->|Fetch sellers.json (Stream)| External
+    
+    Scanner -->|Save Result| DB
+    Importer -->|Bulk Insert (COPY)| DB
+    
+    subgraph "Google Cloud Platform"
+        API
+        Scanner
+        Scheduler
+        Importer
+        DB
+    end
+```
+
 ## Checking Data
 
 ```bash
