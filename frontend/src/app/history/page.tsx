@@ -1,10 +1,13 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowLeft, CheckCircle2, Clock, FileText } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 import useSWR from "swr"
 
 type HistoryRecord = {
@@ -16,7 +19,7 @@ type HistoryRecord = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
-export default function HistoryPage() {
+function HistoryContent() {
   const searchParams = useSearchParams()
   const domain = searchParams.get("domain")
   const router = useRouter()
@@ -103,5 +106,13 @@ export default function HistoryPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function HistoryPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto py-10">Loading history...</div>}>
+      <HistoryContent />
+    </Suspense>
   )
 }
