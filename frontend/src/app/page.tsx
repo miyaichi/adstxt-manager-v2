@@ -3,7 +3,7 @@
 import { SellersResult } from "@/components/sellers/sellers-result"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ValidatorResult } from "@/components/validator/validator-result"
 import { Search } from "lucide-react"
 import { useState } from "react"
@@ -11,44 +11,68 @@ import { useState } from "react"
 export default function DomainSearchPage() {
   const [searchInput, setSearchInput] = useState("")
   const [activeDomain, setActiveDomain] = useState("")
+  const [searchType, setSearchType] = useState("ads.txt")
+
+  // Basic domain validation regex
+  const isValidDomain = (domain: string) => /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/.test(domain)
 
   const handleSearch = () => {
-    // Basic domain validation/normalization
     const domain = searchInput
       .trim()
       .toLowerCase()
       .replace(/^https?:\/\//, "")
       .replace(/\/.*$/, "")
-    if (domain) {
+    if (domain && isValidDomain(domain)) {
       setActiveDomain(domain)
-      // Optional: Clear input or keep it? Keeping it allows easy modification.
     }
   }
+
+  const isSearchDisabled =
+    !searchInput ||
+    !isValidDomain(
+      searchInput
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, "")
+        .replace(/\/.*$/, "")
+    )
 
   return (
     <div className="container mx-auto py-10 space-y-8 max-w-6xl">
       {/* Hero / Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Ads.txt Validator
+          Data Explorer
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Enter a domain to instantly validate their Ads.txt, App-ads.txt, and Sellers.json files. Monitor status and
-          ensure authorized digital selling.
+          Enter a domain to explore their Ads.txt, App-ads.txt, and Sellers.json files.
         </p>
       </div>
 
       {/* Search Bar */}
-      <div className="flex w-full max-w-xl mx-auto items-center space-x-2 p-2 bg-white rounded-xl shadow-lg border transition-all focus-within:ring-2 focus-within:ring-primary/20">
+      <div className="flex w-full max-w-2xl mx-auto items-center space-x-2 p-2 bg-white rounded-xl shadow-lg border transition-all focus-within:ring-2 focus-within:ring-primary/20">
+        <div className="w-[180px] shrink-0">
+          <Select value={searchType} onValueChange={setSearchType}>
+            <SelectTrigger className="h-12 border-0 bg-transparent focus:ring-0 shadow-none text-base">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ads.txt">ads.txt</SelectItem>
+              <SelectItem value="app-ads.txt">app-ads.txt</SelectItem>
+              <SelectItem value="sellers.json">sellers.json</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-px h-8 bg-border" />
         <Input
-          placeholder="e.g. nytimes.com, google.com"
+          placeholder="e.g. nytimes.com"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onKeyDown={(e) => e.key === "Enter" && !isSearchDisabled && handleSearch()}
           className="border-0 shadow-none focus-visible:ring-0 text-lg h-12"
         />
-        <Button size="lg" onClick={handleSearch} className="h-12 px-8 rounded-lg shadow-sm">
-          <Search className="mr-2 h-5 w-5" /> Analyze
+        <Button size="lg" onClick={handleSearch} disabled={isSearchDisabled} className="h-12 px-8 rounded-lg shadow-sm">
+          <Search className="mr-2 h-5 w-5" /> Search
         </Button>
       </div>
 
@@ -71,40 +95,11 @@ export default function DomainSearchPage() {
             </Button>
           </div>
 
-          <Tabs defaultValue="ads.txt" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50 p-1 rounded-xl">
-              <TabsTrigger
-                value="ads.txt"
-                className="text-base rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                ads.txt
-              </TabsTrigger>
-              <TabsTrigger
-                value="app-ads.txt"
-                className="text-base rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                app-ads.txt
-              </TabsTrigger>
-              <TabsTrigger
-                value="sellers.json"
-                className="text-base rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                sellers.json
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="mt-6">
-              <TabsContent value="ads.txt" className="mt-0">
-                <ValidatorResult domain={activeDomain} type="ads.txt" />
-              </TabsContent>
-              <TabsContent value="app-ads.txt" className="mt-0">
-                <ValidatorResult domain={activeDomain} type="app-ads.txt" />
-              </TabsContent>
-              <TabsContent value="sellers.json" className="mt-0">
-                <SellersResult domain={activeDomain} />
-              </TabsContent>
-            </div>
-          </Tabs>
+          <div className="mt-6">
+            {searchType === "ads.txt" && <ValidatorResult domain={activeDomain} type="ads.txt" />}
+            {searchType === "app-ads.txt" && <ValidatorResult domain={activeDomain} type="app-ads.txt" />}
+            {searchType === "sellers.json" && <SellersResult domain={activeDomain} />}
+          </div>
         </div>
       ) : (
         <div className="text-center py-20 opacity-50">

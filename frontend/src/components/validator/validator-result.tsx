@@ -11,11 +11,19 @@ import { useState } from "react"
 import useSWR from "swr"
 
 // Fetcher
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) throw new Error("Failed to fetch")
-    return res.json()
-  })
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) {
+    const text = await res.text()
+    try {
+      const errorData = JSON.parse(text)
+      throw new Error(errorData.error || errorData.message || `Error ${res.status}: ${res.statusText}`)
+    } catch (e) {
+      throw new Error(`Error ${res.status}: ${res.statusText} - ${text.substring(0, 100)}`)
+    }
+  }
+  return res.json()
+}
 
 type Props = {
   domain: string
