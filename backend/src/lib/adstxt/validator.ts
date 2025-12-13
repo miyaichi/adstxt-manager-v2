@@ -136,6 +136,18 @@ export function parseAdsTxtLine(line: string, lineNumber: number): ParsedAdsTxtE
 
   const parts = trimmedLine.split(',').map((part) => part.trim());
 
+  if (parts.length === 1 && parts[0] === trimmedLine) {
+    return createInvalidRecord(
+      {
+        domain: parts[0],
+        line_number: lineNumber,
+        raw_line: line,
+      },
+      VALIDATION_KEYS.INVALID_FORMAT,
+      Severity.ERROR,
+    );
+  }
+
   if (parts.length < 3) {
     return createInvalidRecord(
       {
@@ -146,18 +158,6 @@ export function parseAdsTxtLine(line: string, lineNumber: number): ParsedAdsTxtE
         raw_line: line,
       },
       VALIDATION_KEYS.MISSING_FIELDS,
-      Severity.ERROR,
-    );
-  }
-
-  if (parts.length === 1 && parts[0] === trimmedLine) {
-    return createInvalidRecord(
-      {
-        domain: parts[0],
-        line_number: lineNumber,
-        raw_line: line,
-      },
-      VALIDATION_KEYS.INVALID_FORMAT,
       Severity.ERROR,
     );
   }

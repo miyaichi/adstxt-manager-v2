@@ -60,7 +60,6 @@ export class AdsTxtScanner {
         [domain, finalUrl, content, statusCode, recordsCount, validCount],
       );
       return res.rows[0];
-
     } catch (err: any) {
       // Save failed scan record
       const failRes = await query(

@@ -31,14 +31,19 @@ export class StreamImporter {
         method: 'get',
         url: options.url,
         responseType: 'stream',
-        validateStatus: () => true // Allow all status codes to handle 404/500 manually
+        validateStatus: () => true, // Allow all status codes to handle 404/500 manually
       });
 
       const httpStatus = response.status;
       const etag = response.headers['etag'] || null;
 
       // 1. Raw File Record作成 (Save metadata even if failed)
-      const rawFileId = await this.createRawFileRecord(client, options.domain, httpStatus, typeof etag === 'string' ? etag : null);
+      const rawFileId = await this.createRawFileRecord(
+        client,
+        options.domain,
+        httpStatus,
+        typeof etag === 'string' ? etag : null,
+      );
 
       if (httpStatus >= 400) {
         console.warn(`Failed to fetch sellers.json for ${options.domain}. Status: ${httpStatus}`);
@@ -93,7 +98,7 @@ export class StreamImporter {
     } catch (err: any) {
       console.error(`Error importing ${options.domain}:`, err.message);
       // In case of network error (axios throws), try to record failure
-      // We might need a new client connection if the previous one is in error state or stream failed? 
+      // We might need a new client connection if the previous one is in error state or stream failed?
       // Actually creating record deals with DB. If axios fails before response (e.g. DNS error), we want to log it.
       // For simplicity, we are not recording "Network Error" in DB currently unless we reorganize code to create record first with 'pending' then update.
       // But user asked to consider "sellers.json itself does not exist" which is 404. Above httpStatus handling covers it.
@@ -104,7 +109,12 @@ export class StreamImporter {
     }
   }
 
-  private async createRawFileRecord(client: PoolClient, domain: string, httpStatus: number | null, etag: string | null): Promise<string> {
+  private async createRawFileRecord(
+    client: PoolClient,
+    domain: string,
+    httpStatus: number | null,
+    etag: string | null,
+  ): Promise<string> {
     const res = await client.query(
       `
       INSERT INTO raw_sellers_files (domain, fetched_at, http_status, etag)

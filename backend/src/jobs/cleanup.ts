@@ -11,9 +11,7 @@ export async function runCleanup() {
   try {
     // 1. Clean up old ads.txt scans (keep for 90 days)
     const scanKeepDays = 90;
-    const scanRes = await query(
-      `DELETE FROM ads_txt_scans WHERE scanned_at < NOW() - INTERVAL '${scanKeepDays} days'`,
-    );
+    const scanRes = await query(`DELETE FROM ads_txt_scans WHERE scanned_at < NOW() - INTERVAL '${scanKeepDays} days'`);
     console.log(`Cleanup: Deleted ${scanRes.rowCount} old ads.txt scans.`);
 
     // 2. Clean up old raw_sellers_files (keep for 30 days)
@@ -23,7 +21,6 @@ export async function runCleanup() {
       `DELETE FROM raw_sellers_files WHERE fetched_at < NOW() - INTERVAL '${sellersKeepDays} days'`,
     );
     console.log(`Cleanup: Deleted ${filesRes.rowCount} old raw sellers files (and associated catalog entries).`);
-
   } catch (e: any) {
     console.error('Cleanup failed:', e.message);
   }
