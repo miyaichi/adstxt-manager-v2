@@ -36,7 +36,7 @@ export function ValidatorResult({ domain, type }: Props) {
 
   // Fetch data
   const { data, error, isLoading } = useSWR<ValidationResponse>(
-    domain ? `/api/proxy/adstxt/validate?domain=${domain}&type=${type}&save=true` : null,
+    domain ? `/api/proxy/validator?domain=${domain}&type=${type}&save=true` : null,
     fetcher,
     {
       revalidateOnFocus: false, // Don't revalidate aggressively
@@ -105,7 +105,7 @@ export function ValidatorResult({ domain, type }: Props) {
       <div className="p-6 text-red-500 bg-red-50 rounded-lg border border-red-200">
         <h3 className="font-semibold mb-2">Failed to load report</h3>
         <p>{error.message}</p>
-        <p className="text-sm mt-2 text-muted-foreground">Backend URL: /api/proxy/adstxt/validate</p>
+        <p className="text-sm mt-2 text-muted-foreground">Backend URL: /api/proxy/validator</p>
       </div>
     )
   }

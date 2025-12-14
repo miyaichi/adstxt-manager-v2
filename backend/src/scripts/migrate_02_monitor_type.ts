@@ -1,4 +1,3 @@
-
 import { pool } from '../db/client';
 
 async function migrate() {
@@ -35,7 +34,6 @@ async function migrate() {
     } else {
       console.log('Migration already applied (file_type exists).');
     }
-
   } catch (err: any) {
     console.error('Migration failed:', err.message);
   } finally {

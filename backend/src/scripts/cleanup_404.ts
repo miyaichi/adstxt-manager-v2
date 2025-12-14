@@ -1,4 +1,3 @@
-
 import { pool } from '../db/client';
 
 async function cleanup() {

@@ -38,7 +38,11 @@ export class MonitoredDomainsService {
        )
        LIMIT 50`, // Process in batches
     );
-    return res.rows as { domain: string; file_type: 'ads.txt' | 'app-ads.txt' | 'sellers.json'; scan_interval_minutes: number }[];
+    return res.rows as {
+      domain: string;
+      file_type: 'ads.txt' | 'app-ads.txt' | 'sellers.json';
+      scan_interval_minutes: number;
+    }[];
   }
 
   async updateLastScanned(domain: string, fileType: 'ads.txt' | 'app-ads.txt' | 'sellers.json') {
