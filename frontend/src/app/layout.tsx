@@ -36,11 +36,14 @@ export default function RootLayout({
               <Link href="/explorer" className="transition-colors hover:text-foreground/80 text-foreground/60">
                 Data Explorer
               </Link>
+              <Link href="/status" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Scan Status
+              </Link>
             </nav>
           </div>
         </header>
         <main>{children}</main>
       </body>
-    </html>
+    </html >
   )
 }
