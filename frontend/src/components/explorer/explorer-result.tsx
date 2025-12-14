@@ -62,7 +62,7 @@ export function ExplorerResult({ domain, type }: Props) {
       headers.join(","),
       ...data.records.map((r) =>
         [
-          r.line_number,
+          r.line_number === -1 ? "Auto" : r.line_number,
           r.domain || "",
           r.account_id || "",
           r.relationship || "",
@@ -148,7 +148,9 @@ export function ExplorerResult({ domain, type }: Props) {
               {filteredRecords?.length ? (
                 filteredRecords.map((record, i) => (
                   <TableRow key={i} className="hover:bg-muted/50">
-                    <TableCell className="font-mono text-xs text-muted-foreground">{record.line_number}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {record.line_number === -1 ? "Auto" : record.line_number}
+                    </TableCell>
                     <TableCell className="font-medium">
                       {record.domain || <span className="text-muted-foreground italic">-</span>}
                     </TableCell>

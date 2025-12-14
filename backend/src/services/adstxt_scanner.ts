@@ -84,15 +84,26 @@ export class AdsTxtScanner {
     return res.rows[0] || null;
   }
 
-  async getHistory(domain: string, limit = 10, fileType: 'ads.txt' | 'app-ads.txt' = 'ads.txt'): Promise<ScanResult[]> {
-    const res = await query(
-      `SELECT id, domain, url, scanned_at, status_code, error_message, records_count, valid_count, warning_count, file_type
-         FROM ads_txt_scans 
-         WHERE domain = $1 AND file_type = $2
-         ORDER BY scanned_at DESC 
-         LIMIT $3`,
-      [domain, fileType, limit],
-    );
+  async getHistory(domain?: string, limit = 10, fileType?: 'ads.txt' | 'app-ads.txt'): Promise<ScanResult[]> {
+    let sql = `SELECT id, domain, url, scanned_at, status_code, error_message, records_count, valid_count, warning_count, file_type
+         FROM ads_txt_scans WHERE 1=1`;
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (domain) {
+      sql += ` AND domain = $${paramIndex++}`;
+      params.push(domain);
+    }
+
+    if (fileType) {
+      sql += ` AND file_type = $${paramIndex++}`;
+      params.push(fileType);
+    }
+
+    sql += ` ORDER BY scanned_at DESC LIMIT $${paramIndex}`;
+    params.push(limit);
+
+    const res = await query(sql, params);
     return res.rows;
   }
 }

@@ -180,7 +180,7 @@ const historyRoute = createRoute({
   path: '/history',
   request: {
     query: z.object({
-      domain: z.string(),
+      domain: z.string().optional(),
       type: z.enum(['ads.txt', 'app-ads.txt']).optional(),
     }),
   },
@@ -207,7 +207,7 @@ const historyRoute = createRoute({
 
 app.openapi(historyRoute, async (c) => {
   const { domain, type } = c.req.valid('query');
-  const history = await scanner.getHistory(domain, 10, type || 'ads.txt');
+  const history = await scanner.getHistory(domain, 20, type);
   return c.json(history);
 });
 
