@@ -31,10 +31,10 @@ export default function RootLayout({
             <div className="mr-8 font-bold text-lg">Ads.txt Manager V2</div>
             <nav className="flex items-center space-x-6 text-sm font-medium">
               <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                Search
-              </Link>
-              <Link href="/validator" className="transition-colors hover:text-foreground/80 text-foreground/60">
                 Validator
+              </Link>
+              <Link href="/explorer" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Data Explorer
               </Link>
               <Link href="/monitor" className="transition-colors hover:text-foreground/80 text-foreground/60">
                 Monitor

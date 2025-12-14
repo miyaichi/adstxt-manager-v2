@@ -1,12 +1,11 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ValidationResponse } from "@/types"
-import { CheckCircle, Download, Loader2, XCircle } from "lucide-react"
+import { Download, Loader2 } from "lucide-react"
 import { useState } from "react"
 import useSWR from "swr"
 
@@ -30,7 +29,7 @@ type Props = {
   type: "ads.txt" | "app-ads.txt"
 }
 
-export function ValidatorResult({ domain, type }: Props) {
+export function ExplorerResult({ domain, type }: Props) {
   // Client-side filtering
   const [filter, setFilter] = useState("")
 
@@ -58,7 +57,7 @@ export function ValidatorResult({ domain, type }: Props) {
   // Download functionality
   const handleDownload = () => {
     if (!data?.records) return
-    const headers = ["Line", "Domain", "Publisher Account ID", "Relationship", "Cert ID", "Status", "Message"]
+    const headers = ["Line", "Domain", "Publisher Account ID", "Relationship", "Cert ID", "Comment"]
     const csvContent = [
       headers.join(","),
       ...data.records.map((r) =>
@@ -67,9 +66,8 @@ export function ValidatorResult({ domain, type }: Props) {
           r.domain || "",
           r.account_id || "",
           r.relationship || "",
-          r.account_type || "", // Assuming account_type maps to Cert ID in parser
-          r.is_valid ? "OK" : "ERROR",
-          r.warning_message || r.validation_key || ""
+          r.certification_authority_id || "",
+          r.raw_line.split("#")[1]?.trim() || "" // Extract comment if possible, or just ignore
         ]
           .map((f) => `"${String(f).replace(/"/g, '""')}"`)
           .join(",")
@@ -79,23 +77,17 @@ export function ValidatorResult({ domain, type }: Props) {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = `${domain}_${type}_report.csv`
+    link.download = `${domain}_${type}_explorer.csv`
     link.click()
   }
 
-  if (!domain) {
-    return (
-      <div className="text-muted-foreground text-center py-20 bg-muted/20 rounded-lg">
-        Enter a domain above and press Search to view {type} report.
-      </div>
-    )
-  }
+  if (!domain) return null
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground">Fetching and analyzing {type}...</p>
+        <p className="text-muted-foreground">Fetching {type}...</p>
       </div>
     )
   }
@@ -103,9 +95,8 @@ export function ValidatorResult({ domain, type }: Props) {
   if (error) {
     return (
       <div className="p-6 text-red-500 bg-red-50 rounded-lg border border-red-200">
-        <h3 className="font-semibold mb-2">Failed to load report</h3>
+        <h3 className="font-semibold mb-2">Failed to load data</h3>
         <p>{error.message}</p>
-        <p className="text-sm mt-2 text-muted-foreground">Backend URL: /api/proxy/validator</p>
       </div>
     )
   }
@@ -122,24 +113,6 @@ export function ValidatorResult({ domain, type }: Props) {
           </CardHeader>
           <CardContent className="p-4 pt-0 text-2xl font-bold">{data.stats.total}</CardContent>
         </Card>
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-sm text-green-600">Valid Records</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-green-600">{data.stats.valid}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-sm text-red-600">Invalid Records</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-red-600">{data.stats.invalid}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-sm text-yellow-600">Warnings</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 text-2xl font-bold text-yellow-600">{data.stats.warnings}</CardContent>
-        </Card>
       </div>
 
       {/* Toolbar */}
@@ -151,7 +124,6 @@ export function ValidatorResult({ domain, type }: Props) {
             onChange={(e) => setFilter(e.target.value)}
             className="pl-8"
           />
-          {/* Search icon could go here */}
         </div>
         <Button variant="outline" onClick={handleDownload} className="shrink-0">
           <Download className="mr-2 h-4 w-4" /> Download CSV
@@ -164,28 +136,18 @@ export function ValidatorResult({ domain, type }: Props) {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="w-15">Line</TableHead>
+                <TableHead className="w-16">Line</TableHead>
                 <TableHead>Advertising System</TableHead>
                 <TableHead>Publisher Account ID</TableHead>
                 <TableHead>Relationship</TableHead>
                 <TableHead>Cert ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Message</TableHead>
+                <TableHead>Comment / Raw</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRecords?.length ? (
                 filteredRecords.map((record, i) => (
-                  <TableRow
-                    key={i}
-                    className={
-                      !record.is_valid
-                        ? "bg-red-50 hover:bg-red-100/50"
-                        : record.has_warning
-                          ? "bg-yellow-50 hover:bg-yellow-100/50"
-                          : "hover:bg-muted/50"
-                    }
-                  >
+                  <TableRow key={i} className="hover:bg-muted/50">
                     <TableCell className="font-mono text-xs text-muted-foreground">{record.line_number}</TableCell>
                     <TableCell className="font-medium">
                       {record.domain || <span className="text-muted-foreground italic">-</span>}
@@ -193,48 +155,23 @@ export function ValidatorResult({ domain, type }: Props) {
                     <TableCell className="font-mono text-xs">
                       {record.account_id || <span className="text-muted-foreground italic">-</span>}
                     </TableCell>
-                    <TableCell>
-                      {record.relationship ? (
-                        <Badge
-                          variant="outline"
-                          className={
-                            record.relationship.toUpperCase() === "DIRECT"
-                              ? "bg-blue-50 text-blue-700 border-blue-200"
-                              : ""
-                          }
-                        >
-                          {record.relationship}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground italic">-</span>
-                      )}
+                    <TableCell className="uppercase text-xs font-semibold text-muted-foreground">
+                      {record.relationship || "-"}
                     </TableCell>
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {record.certification_authority_id || "-"}
                     </TableCell>
-                    <TableCell>
-                      {record.is_valid ? (
-                        <div className="flex items-center text-green-600 font-medium text-xs">
-                          <CheckCircle className="w-3.5 h-3.5 mr-1" /> OK
-                        </div>
-                      ) : (
-                        <div className="flex items-center text-red-600 font-medium text-xs">
-                          <XCircle className="w-3.5 h-3.5 mr-1" /> Error
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs max-w-75">
-                      {record.warning_message ? (
-                        <span className="text-yellow-700">{record.warning_message}</span>
-                      ) : record.validation_key && !record.is_valid ? (
-                        <span className="text-red-600 font-mono">{record.validation_key}</span>
-                      ) : null}
+                    <TableCell
+                      className="text-xs text-muted-foreground font-mono max-w-[300px] truncate"
+                      title={record.raw_line}
+                    >
+                      {record.raw_line}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No records found.
                   </TableCell>
                 </TableRow>

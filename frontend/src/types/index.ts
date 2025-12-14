@@ -11,6 +11,7 @@ export type ValidationRecord = {
   has_warning?: boolean
   warning_message?: string
   validation_key?: string
+  certification_authority_id?: string
 }
 
 export type ValidationStats = {

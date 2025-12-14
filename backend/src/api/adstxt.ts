@@ -23,6 +23,7 @@ const ValidationRecordSchema = z.object({
   domain: z.string().optional(),
   account_id: z.string().optional(),
   account_type: z.string().optional(),
+  certification_authority_id: z.string().optional(),
   relationship: z.string().optional(),
   variable_type: z.string().optional(),
   value: z.string().optional(),
