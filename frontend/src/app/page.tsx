@@ -44,7 +44,7 @@ export default function DomainSearchPage() {
       {/* Hero / Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Ads.txt Validator
+          {t("common.title")}
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("common.validatorDescription")}</p>
       </div>
@@ -54,7 +54,7 @@ export default function DomainSearchPage() {
         <div className="w-[180px] shrink-0">
           <Select value={searchType} onValueChange={setSearchType}>
             <SelectTrigger className="h-12 border-0 bg-transparent focus:ring-0 shadow-none text-base">
-              <SelectValue placeholder="Type" />
+              <SelectValue placeholder={t("common.type")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ads.txt">ads.txt</SelectItem>
@@ -64,14 +64,14 @@ export default function DomainSearchPage() {
         </div>
         <div className="w-px h-8 bg-border" />
         <Input
-          placeholder="e.g. nytimes.com"
+          placeholder={t("common.searchPlaceholder")}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !isSearchDisabled && handleSearch()}
           className="border-0 shadow-none focus-visible:ring-0 text-lg h-12"
         />
         <Button size="lg" onClick={handleSearch} disabled={isSearchDisabled} className="h-12 px-8 rounded-lg shadow-sm">
-          <Search className="mr-2 h-5 w-5" /> Search
+          <Search className="mr-2 h-5 w-5" /> {t("common.search")}
         </Button>
       </div>
 
@@ -80,7 +80,7 @@ export default function DomainSearchPage() {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-semibold">
-              Results for <span className="text-primary">{activeDomain}</span>
+              {t("common.resultsFor")} <span className="text-primary">{activeDomain}</span>
             </h2>
             <Button
               variant="ghost"
@@ -90,7 +90,7 @@ export default function DomainSearchPage() {
                 setSearchInput("")
               }}
             >
-              Clear
+              {t("common.clear")}
             </Button>
           </div>
 
@@ -104,7 +104,7 @@ export default function DomainSearchPage() {
           <div className="inline-block p-6 rounded-full bg-muted mb-4">
             <Search className="h-12 w-12 text-muted-foreground" />
           </div>
-          <p className="text-lg font-medium text-muted-foreground">Start by entering a publisher domain above.</p>
+          <p className="text-lg font-medium text-muted-foreground">{t("common.enterDomain")}</p>
         </div>
       )}
     </div>

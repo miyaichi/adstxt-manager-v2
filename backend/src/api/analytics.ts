@@ -24,7 +24,7 @@ const AnalyticsResponseSchema = z.object({
   total_unique_gpids: z.number().nullable().optional(),
   reseller_count: z.number().nullable().optional(),
   id_absorption_rate: z.number().nullable().optional(),
-  updated_at: z.string().optional()
+  updated_at: z.string().optional(),
 });
 
 const ErrorSchema = z.object({
@@ -37,13 +37,16 @@ const getAnalyticsRoute = createRoute({
   path: '/',
   request: {
     query: z.object({
-      domain: z.string().min(1).openapi({
-        param: {
-          name: 'domain',
-          in: 'query',
-        },
-        example: 'nytimes.com',
-      }),
+      domain: z
+        .string()
+        .min(1)
+        .openapi({
+          param: {
+            name: 'domain',
+            in: 'query',
+          },
+          example: 'nytimes.com',
+        }),
     }),
   },
   responses: {
@@ -58,18 +61,18 @@ const getAnalyticsRoute = createRoute({
     400: {
       content: {
         'application/json': {
-          schema: ErrorSchema
-        }
+          schema: ErrorSchema,
+        },
       },
-      description: "Bad Request"
+      description: 'Bad Request',
     },
     404: {
       content: {
         'application/json': {
-          schema: ErrorSchema
-        }
+          schema: ErrorSchema,
+        },
       },
-      description: "Domain not found"
+      description: 'Domain not found',
     },
     500: {
       content: {
@@ -99,7 +102,8 @@ app.openapi(getAnalyticsRoute, async (c) => {
 
   const cacheKey = `analytics:${domain}`;
   const cached = analyticsCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < 3600 * 1000) { // 1 hour cache
+  if (cached && Date.now() - cached.timestamp < 3600 * 1000) {
+    // 1 hour cache
     console.log(`[Analytics] Serving from cache: ${domain}`);
     return c.json(cached.data, 200);
   }
@@ -115,23 +119,23 @@ app.openapi(getAnalyticsRoute, async (c) => {
 
         const response = await fetch(url, {
           headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Accept': 'application/json'
+            Authorization: `Bearer ${apiKey}`,
+            Accept: 'application/json',
           },
-          signal: controller.signal
+          signal: controller.signal,
         });
         clearTimeout(id);
 
         if (!response.ok && response.status >= 500 && i < retries) {
           console.warn(`[Analytics] Request failed with ${response.status}, retrying... (${i + 1}/${retries})`);
-          await new Promise(res => setTimeout(res, 1000 * Math.pow(2, i)));
+          await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, i)));
           continue;
         }
         return response;
       } catch (err: any) {
         if (i < retries) {
           console.warn(`[Analytics] Network error: ${err.message}, retrying... (${i + 1}/${retries})`);
-          await new Promise(res => setTimeout(res, 1000 * Math.pow(2, i)));
+          await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, i)));
           continue;
         }
         throw err;
@@ -180,14 +184,13 @@ app.openapi(getAnalyticsRoute, async (c) => {
       total_unique_gpids: data.total_unique_gpids,
       reseller_count: data.reseller_count,
       id_absorption_rate: data.id_absorption_rate,
-      updated_at: data.updated_at || new Date().toISOString()
+      updated_at: data.updated_at || new Date().toISOString(),
     };
 
     // Update Cache
     analyticsCache.set(cacheKey, { timestamp: Date.now(), data: result });
 
     return c.json(result, 200);
-
   } catch (error: any) {
     console.error('[Analytics] Handler Error:', error);
     return c.json({ error: 'Failed to fetch analytics data' }, 500);

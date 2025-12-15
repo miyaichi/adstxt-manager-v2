@@ -54,7 +54,10 @@ type Props = {
   domain: string
 }
 
+import { useTranslation } from "@/lib/i18n/language-context"
+
 export function SellersResult({ domain }: Props) {
+  const { t } = useTranslation()
   const [filter, setFilter] = useState("")
 
   // Fetch logic: Backend API endpoint needed for fetching a specific domain's sellers.json on demand
@@ -80,7 +83,14 @@ export function SellersResult({ domain }: Props) {
 
   const handleDownload = () => {
     if (!data?.sellers) return
-    const headers = ["Seller ID", "Name", "Type", "Domain", "Is Confidential", "Is Passthrough"]
+    const headers = [
+      t("sellersPage.headers.sellerId"),
+      t("sellersPage.headers.name"),
+      t("sellersPage.headers.type"),
+      t("sellersPage.headers.domain"),
+      t("sellersPage.headers.confidential"),
+      t("sellersPage.headers.passthrough")
+    ]
     const csvContent = [
       headers.join(","),
       ...data.sellers.map((s) =>
@@ -107,7 +117,7 @@ export function SellersResult({ domain }: Props) {
   if (!domain) {
     return (
       <div className="text-muted-foreground text-center py-20 bg-muted/20 rounded-lg">
-        Enter a domain to fetch sellers.json.
+        {t("sellersPage.messages.enterDomain")}
       </div>
     )
   }
@@ -116,7 +126,7 @@ export function SellersResult({ domain }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground">Fetching sellers.json from {domain}...</p>
+        <p className="text-muted-foreground">{t("sellersPage.messages.fetching", { domain })}</p>
       </div>
     )
   }
@@ -125,17 +135,14 @@ export function SellersResult({ domain }: Props) {
     return (
       <div className="space-y-4">
         <Alert variant="destructive">
-          <AlertTitle>Failed to fetch sellers.json</AlertTitle>
+          <AlertTitle>{t("sellersPage.messages.failed")}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
         {/* Fallback to global search hint */}
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>Note</AlertTitle>
-          <AlertDescription>
-            This feature fetches the live sellers.json from the domain. If the domain does not host a sellers.json file,
-            this will fail.
-          </AlertDescription>
+          <AlertTitle>{t("sellersPage.messages.noteTitle")}</AlertTitle>
+          <AlertDescription>{t("sellersPage.messages.noteDescription")}</AlertDescription>
         </Alert>
       </div>
     )
@@ -149,7 +156,7 @@ export function SellersResult({ domain }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Metadata</CardTitle>
+            <CardTitle className="text-lg">{t("sellersPage.metadata")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -170,29 +177,29 @@ export function SellersResult({ domain }: Props) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Stats</CardTitle>
+            <CardTitle className="text-lg">{t("sellersPage.stats")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold">{data.sellers.length}</div>
-                <div className="text-xs text-muted-foreground">Total Sellers</div>
+                <div className="text-xs text-muted-foreground">{t("sellersPage.totalSellers")}</div>
               </div>
               <div>
                 <div className="text-2xl font-bold">
                   {data.sellers.filter((s) => s.seller_type === "PUBLISHER").length}
                 </div>
-                <div className="text-xs text-muted-foreground">Publishers</div>
+                <div className="text-xs text-muted-foreground">{t("sellersPage.publishers")}</div>
               </div>
               <div>
                 <div className="text-2xl font-bold">
                   {data.sellers.filter((s) => s.seller_type === "INTERMEDIARY").length}
                 </div>
-                <div className="text-xs text-muted-foreground">Intermediaries</div>
+                <div className="text-xs text-muted-foreground">{t("sellersPage.intermediaries")}</div>
               </div>
               <div>
                 <div className="text-2xl font-bold">{data.sellers.filter((s) => s.seller_type === "BOTH").length}</div>
-                <div className="text-xs text-muted-foreground">Both</div>
+                <div className="text-xs text-muted-foreground">{t("sellersPage.both")}</div>
               </div>
             </div>
           </CardContent>
@@ -203,14 +210,14 @@ export function SellersResult({ domain }: Props) {
       <div className="flex items-center justify-between gap-4">
         <div className="relative max-w-sm w-full">
           <Input
-            placeholder="Filter sellers..."
+            placeholder={t("sellersPage.filterPlaceholder")}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="pl-8"
           />
         </div>
         <Button variant="outline" onClick={handleDownload} className="shrink-0">
-          <Download className="mr-2 h-4 w-4" /> Download CSV
+          <Download className="mr-2 h-4 w-4" /> {t("common.downloadCsv")}
         </Button>
       </div>
 
@@ -219,12 +226,12 @@ export function SellersResult({ domain }: Props) {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead>Seller ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead>Confidential</TableHead>
-                <TableHead>Passthrough</TableHead>
+                <TableHead>{t("sellersPage.headers.sellerId")}</TableHead>
+                <TableHead>{t("sellersPage.headers.name")}</TableHead>
+                <TableHead>{t("sellersPage.headers.type")}</TableHead>
+                <TableHead>{t("sellersPage.headers.domain")}</TableHead>
+                <TableHead>{t("sellersPage.headers.confidential")}</TableHead>
+                <TableHead>{t("sellersPage.headers.passthrough")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -260,7 +267,7 @@ export function SellersResult({ domain }: Props) {
                     <TableCell className="text-center">
                       {seller.is_confidential ? (
                         <Badge variant="destructive" className="text-[10px]">
-                          Confidential
+                          {t("sellersPage.confidential")}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground">-</span>
@@ -274,7 +281,7 @@ export function SellersResult({ domain }: Props) {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    No sellers found matching filter.
+                    {t("sellersPage.messages.noSellers")}
                   </TableCell>
                 </TableRow>
               )}
@@ -283,7 +290,7 @@ export function SellersResult({ domain }: Props) {
         </div>
       </div>
       <div className="text-xs text-muted-foreground text-right">
-        Source URL:{" "}
+        {t("common.sourceUrl")}:{" "}
         <a
           href={data.sellers_json_url}
           target="_blank"

@@ -45,7 +45,7 @@ export default function ExplorerPage() {
       {/* Hero / Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-          Data Explorer
+          {t("common.dataExplorer")}
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("common.dataExplorerDescription")}</p>
       </div>
@@ -55,7 +55,7 @@ export default function ExplorerPage() {
         <div className="w-[180px] shrink-0">
           <Select value={searchType} onValueChange={setSearchType}>
             <SelectTrigger className="h-12 border-0 bg-transparent focus:ring-0 shadow-none text-base">
-              <SelectValue placeholder="Type" />
+              <SelectValue placeholder={t("common.type")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ads.txt">ads.txt</SelectItem>
@@ -66,7 +66,7 @@ export default function ExplorerPage() {
         </div>
         <div className="w-px h-8 bg-border" />
         <Input
-          placeholder="e.g. nytimes.com"
+          placeholder={t("common.searchPlaceholder")}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !isSearchDisabled && handleSearch()}
@@ -78,7 +78,7 @@ export default function ExplorerPage() {
           disabled={isSearchDisabled}
           className="h-12 px-8 rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700"
         >
-          <Search className="mr-2 h-5 w-5" /> Explore
+          <Search className="mr-2 h-5 w-5" /> {t("common.explore")}
         </Button>
       </div>
 
@@ -87,7 +87,7 @@ export default function ExplorerPage() {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-semibold">
-              <span className="text-muted-foreground font-normal">Explorer Results for </span>
+              <span className="text-muted-foreground font-normal">{t("common.explorerResultsFor")} </span>
               <span>{activeDomain}</span>
             </h2>
             <Button
@@ -98,7 +98,7 @@ export default function ExplorerPage() {
                 setSearchInput("")
               }}
             >
-              Clear
+              {t("common.clear")}
             </Button>
           </div>
 
@@ -113,7 +113,7 @@ export default function ExplorerPage() {
           <div className="inline-block p-6 rounded-full bg-emerald-50 mb-4">
             <Search className="h-12 w-12 text-emerald-200" />
           </div>
-          <p className="text-lg font-medium text-muted-foreground">Start by entering a domain above.</p>
+          <p className="text-lg font-medium text-muted-foreground">{t("common.enterDomain")}</p>
         </div>
       )}
     </div>

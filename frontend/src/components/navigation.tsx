@@ -9,16 +9,16 @@ export function Navigation() {
   return (
     <nav className="flex items-center space-x-6 text-sm font-medium">
       <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">
-        Validator
+        {t("common.validator")}
       </Link>
       <Link href="/explorer" className="transition-colors hover:text-foreground/80 text-foreground/60">
-        Data Explorer
+        {t("common.dataExplorer")}
       </Link>
       <Link href="/status" className="transition-colors hover:text-foreground/80 text-foreground/60">
-        Scan Status
+        {t("common.scanStatus")}
       </Link>
       <Link href="/analytics" className="transition-colors hover:text-foreground/80 text-foreground/60">
-        Insite Analytics
+        {t("common.analytics")}
       </Link>
     </nav>
   )

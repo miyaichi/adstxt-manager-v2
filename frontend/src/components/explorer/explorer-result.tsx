@@ -29,7 +29,10 @@ type Props = {
   type: "ads.txt" | "app-ads.txt"
 }
 
+import { useTranslation } from "@/lib/i18n/language-context"
+
 export function ExplorerResult({ domain, type }: Props) {
+  const { t } = useTranslation()
   // Client-side filtering
   const [filter, setFilter] = useState("")
 
@@ -57,7 +60,14 @@ export function ExplorerResult({ domain, type }: Props) {
   // Download functionality
   const handleDownload = () => {
     if (!data?.records) return
-    const headers = ["Line", "Domain", "Publisher Account ID", "Relationship", "Cert ID", "Comment"]
+    const headers = [
+      t("common.line"),
+      t("common.advertisingSystem"),
+      t("common.publisherAccountId"),
+      t("common.relationship"),
+      t("common.certId"),
+      t("common.commentRaw")
+    ]
     const csvContent = [
       headers.join(","),
       ...data.records.map((r) =>
@@ -87,7 +97,7 @@ export function ExplorerResult({ domain, type }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground">Fetching {type}...</p>
+        <p className="text-muted-foreground">{t("explorerPage.fetching", { type })}</p>
       </div>
     )
   }
@@ -95,7 +105,7 @@ export function ExplorerResult({ domain, type }: Props) {
   if (error) {
     return (
       <div className="p-6 text-red-500 bg-red-50 rounded-lg border border-red-200">
-        <h3 className="font-semibold mb-2">Failed to load data</h3>
+        <h3 className="font-semibold mb-2">{t("common.failedToLoad")}</h3>
         <p>{error.message}</p>
       </div>
     )
@@ -109,7 +119,7 @@ export function ExplorerResult({ domain, type }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Records</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("common.totalRecords")}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0 text-2xl font-bold">{data.stats.total}</CardContent>
         </Card>
@@ -119,14 +129,14 @@ export function ExplorerResult({ domain, type }: Props) {
       <div className="flex items-center justify-between gap-4">
         <div className="relative max-w-sm w-full">
           <Input
-            placeholder="Filter by domain, ID..."
+            placeholder={t("common.filterPlaceholder")}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="pl-8"
           />
         </div>
         <Button variant="outline" onClick={handleDownload} className="shrink-0">
-          <Download className="mr-2 h-4 w-4" /> Download CSV
+          <Download className="mr-2 h-4 w-4" /> {t("common.downloadCsv")}
         </Button>
       </div>
 
@@ -136,12 +146,12 @@ export function ExplorerResult({ domain, type }: Props) {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="w-16">Line</TableHead>
-                <TableHead>Advertising System</TableHead>
-                <TableHead>Publisher Account ID</TableHead>
-                <TableHead>Relationship</TableHead>
-                <TableHead>Cert ID</TableHead>
-                <TableHead>Comment / Raw</TableHead>
+                <TableHead className="w-16">{t("common.line")}</TableHead>
+                <TableHead>{t("common.advertisingSystem")}</TableHead>
+                <TableHead>{t("common.publisherAccountId")}</TableHead>
+                <TableHead>{t("common.relationship")}</TableHead>
+                <TableHead>{t("common.certId")}</TableHead>
+                <TableHead>{t("common.commentRaw")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -149,7 +159,7 @@ export function ExplorerResult({ domain, type }: Props) {
                 filteredRecords.map((record, i) => (
                   <TableRow key={i} className="hover:bg-muted/50">
                     <TableCell className="font-mono text-xs text-muted-foreground">
-                      {record.line_number === -1 ? "Auto" : record.line_number}
+                      {record.line_number === -1 ? t("common.auto") : record.line_number}
                     </TableCell>
                     <TableCell className="font-medium">
                       {record.domain || <span className="text-muted-foreground italic">-</span>}
@@ -174,7 +184,7 @@ export function ExplorerResult({ domain, type }: Props) {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    No records found.
+                    {t("common.noRecords")}
                   </TableCell>
                 </TableRow>
               )}
@@ -183,7 +193,7 @@ export function ExplorerResult({ domain, type }: Props) {
         </div>
       </div>
       <div className="text-xs text-muted-foreground text-right">
-        Source URL:{" "}
+        {t("common.sourceUrl")}:{" "}
         <a href={data.ads_txt_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
           {data.ads_txt_url}
         </a>

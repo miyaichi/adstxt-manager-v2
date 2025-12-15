@@ -113,9 +113,45 @@ export const translations = {
       en: "Enter a domain above and press Search to view report.",
       ja: "ドメインを入力して検索ボタンを押すとレポートが表示されます。"
     },
+    resultsFor: {
+      en: "Results for",
+      ja: "検索結果: "
+    },
+    clear: {
+      en: "Clear",
+      ja: "クリア"
+    },
+    type: {
+      en: "Type",
+      ja: "タイプ"
+    },
     loading: {
       en: "Fetching and analyzing...",
       ja: "取得・解析中..."
+    },
+    failedToLoad: {
+      en: "Failed to load report",
+      ja: "レポートの読み込みに失敗しました"
+    },
+    sourceUrl: {
+      en: "Source URL",
+      ja: "ソースURL"
+    },
+    explore: {
+      en: "Explore",
+      ja: "探索"
+    },
+    explorerResultsFor: {
+      en: "Explorer Results for",
+      ja: "探索結果: "
+    },
+    auto: {
+      en: "Auto",
+      ja: "自動"
+    },
+    commentRaw: {
+      en: "Comment / Raw",
+      ja: "コメント / 元データ"
     }
   },
   validation: {
@@ -125,6 +161,42 @@ export const translations = {
         en: "Validation Summary",
         ja: "検証サマリー"
       }
+    }
+  },
+  explorerPage: {
+    fetching: { en: "Fetching {{type}}...", ja: "{{type}}を取得中..." }
+  },
+  sellersPage: {
+    metadata: { en: "Metadata", ja: "メタデータ" },
+    stats: { en: "Stats", ja: "統計" },
+    totalSellers: { en: "Total Sellers", ja: "総セラー" },
+    publishers: { en: "Publishers", ja: "パブリッシャー" },
+    intermediaries: { en: "Intermediaries", ja: "仲介者" },
+    both: { en: "Both", ja: "両方" },
+    filterPlaceholder: { en: "Filter sellers...", ja: "セラーをフィルタ..." },
+    confidential: { en: "Confidential", ja: "機密" },
+    passthrough: { en: "Passthrough", ja: "パススルー" },
+    headers: {
+      sellerId: { en: "Seller ID", ja: "セラーID" },
+      name: { en: "Name", ja: "名称" },
+      type: { en: "Type", ja: "タイプ" },
+      domain: { en: "Domain", ja: "ドメイン" },
+      confidential: { en: "Confidential", ja: "機密" },
+      passthrough: { en: "Passthrough", ja: "パススルー" }
+    },
+    messages: {
+      enterDomain: {
+        en: "Enter a domain to fetch sellers.json.",
+        ja: "ドメインを入力してSellers.jsonを取得してください。"
+      },
+      fetching: { en: "Fetching sellers.json from {{domain}}...", ja: "{{domain}}からSellers.jsonを取得中..." },
+      failed: { en: "Failed to fetch sellers.json", ja: "Sellers.jsonの取得に失敗しました" },
+      noteTitle: { en: "Note", ja: "注意" },
+      noteDescription: {
+        en: "This feature fetches the live sellers.json from the domain. If the domain does not host a sellers.json file, this will fail.",
+        ja: "この機能はドメインからライブSellers.jsonを取得します。Sellers.jsonが存在しない場合は失敗します。"
+      },
+      noSellers: { en: "No sellers found matching filter.", ja: "条件に一致するセラーは見つかりませんでした。" }
     }
   },
   warnings: {
@@ -226,6 +298,78 @@ export const translations = {
     },
     code: { en: "Code", ja: "コード" },
     recommendation: { en: "Recommendation", ja: "推奨アクション" }
+  },
+  analyticsPage: {
+    searchPlaceholder: {
+      en: "Enter publisher domain (e.g. nytimes.com)",
+      ja: "パブリッシャードメインを入力 (例: nytimes.com)"
+    },
+    analyze: { en: "Analyze", ja: "分析" },
+    error: {
+      domainNotFound: {
+        en: "Domain not found in OpenSincera database.",
+        ja: "OpenSinceraデータベースにドメインが見つかりません。"
+      },
+      generic: { en: "An error occurred while fetching data.", ja: "データの取得中にエラーが発生しました。" },
+      checkDomain: { en: "Please check the domain name and try again.", ja: "ドメイン名を確認して再度お試しください。" }
+    },
+    supplyType: { en: "Supply Type", ja: "サプライタイプ" },
+    unknown: { en: "Unknown", ja: "不明" },
+    metrics: {
+      directness: { en: "Directness", ja: "直接性" },
+      idAbsorptionRate: { en: "ID Absorption Rate", ja: "ID吸収率" },
+      adsToContent: { en: "Ads / Content", ja: "広告/コンテンツ比" },
+      a2crRatio: { en: "A2CR Ratio", ja: "A2CR比率" },
+      adRefresh: { en: "Ad Refresh", ja: "広告リフレッシュ" },
+      avgTime: { en: "Avg. Time", ja: "平均時間" },
+      inventory: { en: "Inventory", ja: "在庫" },
+      uniqueGpids: { en: "Unique GPIDs", ja: "ユニークGPID" },
+      adQuality: { en: "Ad Quality", ja: "広告品質" },
+      avgAdsInView: { en: "Avg. Ads In View", ja: "平均インビュー率" },
+      performance: { en: "Performance", ja: "パフォーマンス" },
+      avgPageWeight: { en: "Avg. Page Weight", ja: "平均ページ重量" },
+      complexity: { en: "Complexity", ja: "複雑性" },
+      avgCpuUsage: { en: "Avg. CPU Usage", ja: "平均CPU使用率" },
+      supplyChain: { en: "Supply Chain", ja: "サプライチェーン" },
+      paths: { en: "Paths", ja: "パス" },
+      resellers: { en: "Resellers", ja: "リセラー" }
+    },
+    updatedAt: { en: "Data updated:", ja: "データ更新日:" },
+    poweredBy: { en: "Powered by OpenSincera", ja: "Powered by OpenSincera" }
+  },
+  scanStatusPage: {
+    tabs: {
+      adstxt: { en: "Ads.txt Scans", ja: "Ads.txtスキャン" },
+      sellers: { en: "Sellers.json Scans", ja: "Sellers.jsonスキャン" }
+    },
+    adstxt: {
+      title: { en: "Recent Ads.txt / App-ads.txt Scans", ja: "最新のAds.txt / App-ads.txtスキャン" },
+      description: {
+        en: "Latest scan results from Data Explorer and automated monitoring.",
+        ja: "データエクスプローラーと自動監視による最新のスキャン結果です。"
+      }
+    },
+    sellers: {
+      title: { en: "Recent Sellers.json Scans", ja: "最新のSellers.jsonスキャン" },
+      description: {
+        en: "List of recently fetched sellers.json files.",
+        ja: "最近取得されたSellers.jsonファイルの一覧です。"
+      }
+    },
+    headers: {
+      domain: { en: "Domain", ja: "ドメイン" },
+      type: { en: "Type", ja: "タイプ" },
+      scannedAt: { en: "Scanned At", ja: "スキャン日時" },
+      fetchedAt: { en: "Fetched At", ja: "取得日時" },
+      stats: { en: "Stats", ja: "統計" },
+      status: { en: "Status", ja: "ステータス" },
+      etag: { en: "ETag", ja: "ETag" }
+    },
+    messages: {
+      loading: { en: "Loading...", ja: "読み込み中..." },
+      failed: { en: "Failed to load data.", ja: "データの読み込みに失敗しました。" },
+      noScans: { en: "No scans found yet.", ja: "スキャンデータはまだありません。" }
+    }
   },
   footer: {
     validationCodes: { en: "Validation Codes", ja: "検証コード一覧" }

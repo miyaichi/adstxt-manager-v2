@@ -29,14 +29,14 @@ type AdsTxtScan = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
-const ClientDate = ({ date }: { date: string }) => {
+const ClientDate = ({ date, locale = "en" }: { date: string; locale?: string }) => {
   const [formatted, setFormatted] = useState<string>("")
 
   useEffect(() => {
     if (date) {
-      setFormatted(new Date(date).toLocaleString())
+      setFormatted(new Date(date).toLocaleString(locale))
     }
-  }, [date])
+  }, [date, locale])
 
   if (!formatted) {
     return <div className="h-4 w-20 bg-muted/20 animate-pulse rounded" />
@@ -51,30 +51,31 @@ const ClientDate = ({ date }: { date: string }) => {
 }
 
 function AdsTxtScanStatus() {
+  const { t, language } = useTranslation()
   const { data, isLoading } = useSWR<AdsTxtScan[]>("/api/proxy/history", fetcher)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Ads.txt / App-ads.txt Scans</CardTitle>
-        <CardDescription>Latest scan results from Data Explorer and automated monitoring.</CardDescription>
+        <CardTitle>{t("scanStatusPage.adstxt.title")}</CardTitle>
+        <CardDescription>{t("scanStatusPage.adstxt.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex justify-center p-8">Loading...</div>
+          <div className="flex justify-center p-8">{t("scanStatusPage.messages.loading")}</div>
         ) : !data || !Array.isArray(data) || data.length === 0 ? (
           <div className="text-muted-foreground p-8 text-center">
-            {data && !Array.isArray(data) ? "Failed to load data." : "No scans found yet."}
+            {data && !Array.isArray(data) ? t("scanStatusPage.messages.failed") : t("scanStatusPage.messages.noScans")}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Domain</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Scanned At</TableHead>
-                <TableHead>Stats</TableHead>
-                <TableHead className="w-[100px]">Status</TableHead>
+                <TableHead>{t("scanStatusPage.headers.domain")}</TableHead>
+                <TableHead>{t("scanStatusPage.headers.type")}</TableHead>
+                <TableHead>{t("scanStatusPage.headers.scannedAt")}</TableHead>
+                <TableHead>{t("scanStatusPage.headers.stats")}</TableHead>
+                <TableHead className="w-[100px]">{t("scanStatusPage.headers.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -89,20 +90,20 @@ function AdsTxtScanStatus() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <ClientDate date={scan.scanned_at} />
+                    <ClientDate date={scan.scanned_at} locale={language === "ja" ? "ja-JP" : "en-US"} />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-3 text-xs">
-                      <div className="flex items-center" title="Total Records">
+                      <div className="flex items-center" title={t("common.totalRecords")}>
                         <FileText className="mr-1 h-3 w-3 text-muted-foreground" />
                         {scan.records_count}
                       </div>
-                      <div className="flex items-center text-green-600" title="Valid Records">
+                      <div className="flex items-center text-green-600" title={t("common.validRecords")}>
                         <CheckCircle2 className="mr-1 h-3 w-3" />
                         {scan.valid_count}
                       </div>
                       {scan.warning_count > 0 && (
-                        <div className="flex items-center text-yellow-600" title="Warnings">
+                        <div className="flex items-center text-yellow-600" title={t("common.warnings")}>
                           <AlertTriangle className="mr-1 h-3 w-3" />
                           {scan.warning_count}
                         </div>
@@ -135,29 +136,30 @@ function AdsTxtScanStatus() {
 }
 
 function SellersJsonStatus() {
+  const { t, language } = useTranslation()
   const { data, isLoading } = useSWR<SellersFile[]>("/api/proxy/sellers/files", fetcher)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Sellers.json Scans</CardTitle>
-        <CardDescription>List of recently fetched sellers.json files.</CardDescription>
+        <CardTitle>{t("scanStatusPage.sellers.title")}</CardTitle>
+        <CardDescription>{t("scanStatusPage.sellers.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex justify-center p-8">Loading...</div>
+          <div className="flex justify-center p-8">{t("scanStatusPage.messages.loading")}</div>
         ) : !data || !Array.isArray(data) || data.length === 0 ? (
           <div className="text-muted-foreground p-8 text-center">
-            {data && !Array.isArray(data) ? "Failed to load data." : "No scans found yet."}
+            {data && !Array.isArray(data) ? t("scanStatusPage.messages.failed") : t("scanStatusPage.messages.noScans")}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Domain</TableHead>
-                <TableHead>Fetched At</TableHead>
-                <TableHead className="w-[100px]">Status</TableHead>
-                <TableHead className="w-[200px]">ETag</TableHead>
+                <TableHead>{t("scanStatusPage.headers.domain")}</TableHead>
+                <TableHead>{t("scanStatusPage.headers.fetchedAt")}</TableHead>
+                <TableHead className="w-[100px]">{t("scanStatusPage.headers.status")}</TableHead>
+                <TableHead className="w-[200px]">{t("scanStatusPage.headers.etag")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -170,7 +172,7 @@ function SellersJsonStatus() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <ClientDate date={file.fetched_at} />
+                    <ClientDate date={file.fetched_at} locale={language === "ja" ? "ja-JP" : "en-US"} />
                   </TableCell>
                   <TableCell>
                     <span
@@ -205,14 +207,14 @@ export default function StatusPage() {
   return (
     <div className="container mx-auto py-10 space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Scan Status</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("common.scanStatus")}</h1>
         <p className="text-muted-foreground">{t("common.scanStatusDescription")}</p>
       </div>
 
       <Tabs defaultValue="adstxt" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="adstxt">Ads.txt Scans</TabsTrigger>
-          <TabsTrigger value="sellers">Sellers.json Scans</TabsTrigger>
+          <TabsTrigger value="adstxt">{t("scanStatusPage.tabs.adstxt")}</TabsTrigger>
+          <TabsTrigger value="sellers">{t("scanStatusPage.tabs.sellers")}</TabsTrigger>
         </TabsList>
         <TabsContent value="adstxt">
           <AdsTxtScanStatus />
