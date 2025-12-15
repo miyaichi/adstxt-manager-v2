@@ -36,10 +36,32 @@ type AnalyticsData = {
 const fetcher = async (url: string) => {
   const res = await fetch(url)
   if (!res.ok) {
+    try {
+      const errorData = await res.json()
+      // Proxy formats error as { error: string }
+      // Backend error might be nested as stringified JSON inside Proxy error
+      let msg = errorData.error || "Failed to fetch data";
+
+      // Attempt to parse stringified JSON error message from backend
+      try {
+        const inner = JSON.parse(msg);
+        if (inner.error) msg = inner.error;
+      } catch { }
+
+      if (res.status === 404) {
+        throw new Error("Domain not found")
+      }
+      throw new Error(msg)
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Failed to fetch data") {
+        throw e;
+      }
+    }
+
     if (res.status === 404) {
       throw new Error("Domain not found")
     }
-    throw new Error("Failed to fetch data")
+    throw new Error(`Failed to fetch data (${res.status})`)
   }
   return res.json()
 }
@@ -110,6 +132,11 @@ export default function AnalyticsPage() {
                   ? "Domain not found in OpenSincera database."
                   : "An error occurred while fetching data."}
               </p>
+              {error.message !== "Domain not found" && (
+                <p className="text-sm mt-3 font-mono bg-red-100/50 p-2 rounded inline-block text-red-800">
+                  Error: {error.message}
+                </p>
+              )}
               <p className="text-sm mt-2 opacity-80">Please check the domain name and try again.</p>
             </div>
           ) : data ? (
