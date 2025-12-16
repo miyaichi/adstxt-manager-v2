@@ -33,6 +33,10 @@ export const translations = {
       en: "Insite Analytics",
       ja: "インサイト分析"
     },
+    optimizer: {
+      en: "Optimizer",
+      ja: "オプティマイザー"
+    },
     analyticsDescription: {
       en: "Analyze publisher domain data using OpenSincera API.",
       ja: "OpenSincera APIを使用してパブリッシャードメインデータを分析します。"

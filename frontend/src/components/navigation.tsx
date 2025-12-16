@@ -17,6 +17,9 @@ export function Navigation() {
       <Link href="/analytics" className="transition-colors hover:text-foreground/80 text-foreground/60">
         {t("common.analytics")}
       </Link>
+      <Link href="/optimizer" className="transition-colors hover:text-foreground/80 text-foreground/60">
+        {t("common.optimizer")}
+      </Link>
       <Link href="/status" className="transition-colors hover:text-foreground/80 text-foreground/60">
         {t("common.scanStatus")}
       </Link>
