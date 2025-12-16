@@ -1,11 +1,13 @@
+
 import { serve } from '@hono/node-server';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import dotenv from 'dotenv';
-import adstxtParams from './api/adstxt';
-import analyticsParams from './api/analytics';
-import monitorParams from './api/monitor';
-import sellersParams from './api/sellers';
+import adstxtApp from './api/adstxt';
+import analyticsApp from './api/analytics';
+import monitorApp from './api/monitor';
+import optimizerApp from './api/optimizer';
+import sellersApp from './api/sellers';
 
 dotenv.config();
 
@@ -28,10 +30,11 @@ app.get('/', (c) => {
 });
 
 // Routes
-app.route('/api/sellers', sellersParams);
-app.route('/api/adstxt', adstxtParams);
-app.route('/api/monitor', monitorParams);
-app.route('/api/analytics', analyticsParams);
+app.route('/api/sellers', sellersApp);
+app.route('/api/adstxt', adstxtApp);
+app.route('/api/monitor', monitorApp);
+app.route('/api/analytics', analyticsApp);
+app.route('/api/optimizer', optimizerApp);
 
 // OpenAPI Docs
 app.doc('/doc', {
