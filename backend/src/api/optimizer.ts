@@ -11,6 +11,8 @@ const optimizerSchema = z.object({
   fileType: z.enum(['ads.txt', 'app-ads.txt']).default('ads.txt'),
   steps: z.object({
     removeErrors: z.boolean().default(false),
+    invalidAction: z.enum(['remove', 'comment']).default('remove'),
+    duplicateAction: z.enum(['remove', 'comment']).default('remove'),
     fixOwnerDomain: z.boolean().default(false),
     verifySellers: z.boolean().default(false),
   }),
@@ -49,7 +51,7 @@ optimizerApp.post('/process', zValidator('json', optimizerSchema), async (c) => 
       const line = lines[i];
       const trimmed = line.trim();
 
-      // Preserve comments and empty lines
+      // Preserve existing comments and empty lines
       if (!trimmed || trimmed.startsWith('#')) {
         newLines.push(line);
         continue;
@@ -61,8 +63,13 @@ optimizerApp.post('/process', zValidator('json', optimizerSchema), async (c) => 
       const entry = parsedEntries.find(e => e.line_number === i + 1);
 
       if (entry) {
+        // Invalid Record Handling
         if (!entry.is_valid) {
-          // Skip invalid
+          if (steps.invalidAction === 'comment') {
+            newLines.push(`# INVALID: ${line} (${entry.error || 'Unknown Error'})`);
+          } else {
+            removedCount++; // Removed
+          }
           continue;
         }
 
@@ -78,24 +85,31 @@ optimizerApp.post('/process', zValidator('json', optimizerSchema), async (c) => 
         }
 
         if (seen.has(key)) {
-          // Duplicate
-          removedCount++; // Count as removed
+          // Duplicate Handling
+          if (steps.duplicateAction === 'comment') {
+            newLines.push(`# DUPLICATE: ${line}`);
+          } else {
+            removedCount++; // Removed
+          }
           continue;
         }
 
         seen.add(key);
         newLines.push(line);
       } else {
-        // Should not happen if logic matches, but if null was returned by parser (invalid char etc), skip
-        // parser returns null for comments/empty, which we handled above.
-        // If parser returns invalid record, it is in entries with is_valid=false.
-        // If parser returned null for non-comment line? (e.g. unexpected error)
-        // Let's assume we keep it if we can't parse it? No, "Remove Errors" means remove.
+        // Should ideally not be reached if parser matches lines
+        // If parser failed to return entry, assume invalid?
+        // For safety, keep it? or treat as invalid?
+        // Treat as invalid for now if we strictly trust parser
+        if (steps.invalidAction === 'comment') {
+          newLines.push(`# INVALID_PARSE: ${line}`);
+        } else {
+          removedCount++;
+        }
       }
     }
 
     optimizedContent = newLines.join('\n');
-    removedCount = originalLines - newLines.length;
   }
 
   // Return result
@@ -110,4 +124,40 @@ optimizerApp.post('/process', zValidator('json', optimizerSchema), async (c) => 
   });
 });
 
+const fetchSchema = z.object({
+  domain: z.string(),
+  fileType: z.enum(['ads.txt', 'app-ads.txt']).default('ads.txt'),
+});
+
+optimizerApp.post('/fetch', zValidator('json', fetchSchema), async (c) => {
+  const { domain, fileType } = c.req.valid('json');
+
+  if (!domain) {
+    return c.json({ error: 'Domain is required' }, 400);
+  }
+
+  try {
+    const url = `https://${domain}/${fileType}`;
+    // Simple fetch implementation
+    // In production, might need retry logic, user-agent rotation, proxy, etc.
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'AdsTxtManager/2.0 (Compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+      },
+      signal: AbortSignal.timeout(10000) // 10s timeout
+    });
+
+    if (!response.ok) {
+      return c.json({ error: `Failed to fetch from ${url}: ${response.status} ${response.statusText}` }, 502);
+    }
+
+    const text = await response.text();
+    return c.json({ content: text });
+  } catch (error: any) {
+    console.error(`Error fetching ${fileType} from ${domain}:`, error);
+    return c.json({ error: `Fetch error: ${error.message}` }, 500);
+  }
+});
+
 export default optimizerApp;
+

@@ -11,7 +11,22 @@ import sellersApp from './api/sellers';
 
 dotenv.config();
 
+import { cors } from 'hono/cors';
+
 const app = new OpenAPIHono();
+
+// CORS Middleware
+app.use(
+  '/*',
+  cors({
+    origin: '*', // Allow any origin for development
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposeHeaders: ['Content-Length'],
+    maxAge: 600,
+    credentials: true,
+  }),
+);
 
 // Logger middleware
 app.use('*', async (c, next) => {

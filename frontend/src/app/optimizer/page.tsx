@@ -25,6 +25,8 @@ export default function OptimizerPage() {
   // State for optimization steps
   const [steps, setSteps] = useState({
     removeErrors: true,
+    invalidAction: "remove" as "remove" | "comment",
+    duplicateAction: "remove" as "remove" | "comment",
     fixOwnerDomain: false,
     verifySellers: false,
   })
@@ -42,11 +44,23 @@ export default function OptimizerPage() {
     if (!domain) return
     setIsFetching(true)
     try {
-      // Mock fetch
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      // In reality, this would call backend API to fetch ads.txt from domain
-      loadSampleData()
-      setInputType("text")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/optimizer/fetch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain, fileType })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Fetch failed");
+      }
+
+      const data = await response.json();
+      setInputContent(data.content || "");
+      // Keep inputType as URL
+    } catch (e) {
+      console.error("Fetch failed", e)
+      alert("Failed to fetch ads.txt from domain. Please check the domain and try again.")
     } finally {
       setIsFetching(false)
     }
@@ -76,6 +90,8 @@ export default function OptimizerPage() {
             fileType: fileType,
             steps: {
               removeErrors: steps.removeErrors,
+              invalidAction: steps.invalidAction,
+              duplicateAction: steps.duplicateAction,
               fixOwnerDomain: steps.fixOwnerDomain,
               verifySellers: steps.verifySellers
             }
@@ -248,13 +264,79 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                   onCheckedChange={(c) => setSteps(prev => ({ ...prev, removeErrors: c }))}
                   className="mt-1"
                 />
-                <div className="space-y-1">
-                  <Label htmlFor="s1" className="text-base font-medium cursor-pointer">
-                    1. Clean Up
-                  </Label>
+                <div className="space-y-4 w-full">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="s1" className="text-base font-medium cursor-pointer">
+                      1. Clean Up
+                    </Label>
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    Remove format errors, duplicate lines, and invalid comments.
+                    Handle format errors, duplicate lines, and invalid comments.
                   </p>
+
+                  {steps.removeErrors && (
+                    <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+
+                      {/* Invalid Records Action */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invalid Records</Label>
+                        <div className="flex items-center space-x-4">
+                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name="invalidAction"
+                              value="remove"
+                              checked={steps.invalidAction === 'remove'}
+                              onChange={() => setSteps(s => ({ ...s, invalidAction: 'remove' }))}
+                              className="accent-blue-600"
+                            />
+                            <span>Remove</span>
+                          </label>
+                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name="invalidAction"
+                              value="comment"
+                              checked={steps.invalidAction === 'comment'}
+                              onChange={() => setSteps(s => ({ ...s, invalidAction: 'comment' }))}
+                              className="accent-blue-600"
+                            />
+                            <span>Comment out</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Duplicates Action */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Duplicates</Label>
+                        <div className="flex items-center space-x-4">
+                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name="duplicateAction"
+                              value="remove"
+                              checked={steps.duplicateAction === 'remove'}
+                              onChange={() => setSteps(s => ({ ...s, duplicateAction: 'remove' }))}
+                              className="accent-blue-600"
+                            />
+                            <span>Remove</span>
+                          </label>
+                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name="duplicateAction"
+                              value="comment"
+                              checked={steps.duplicateAction === 'comment'}
+                              onChange={() => setSteps(s => ({ ...s, duplicateAction: 'comment' }))}
+                              className="accent-blue-600"
+                            />
+                            <span>Comment out</span>
+                          </label>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
                 </div>
               </div>
 
