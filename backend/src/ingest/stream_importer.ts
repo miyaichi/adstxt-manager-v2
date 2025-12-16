@@ -75,6 +75,8 @@ export class StreamImporter {
         );
 
         // 4. Build pipeline
+        const seenSellerIds = new Set<string>();
+
         await pipeline(
           response.data,
           parser(),
@@ -83,15 +85,50 @@ export class StreamImporter {
           new Transform({
             objectMode: true,
             transform(chunk, encoding, callback) {
-              const seller = chunk.value;
-              const sellerId = (seller.seller_id || '').toString().trim();
-              const sellerType = (seller.seller_type || '').toString().trim();
-              const name = (seller.name || '').toString().replace(/\t/g, ' ').replace(/\n/g, ' ').trim();
-              const isConfidential =
-                seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1';
+              try {
+                const seller = chunk.value;
+                if (!seller) {
+                  callback();
+                  return;
+                }
 
-              const row = `${sellerId}\t${options.domain}\t${sellerType}\t${name}\t${isConfidential}\t${rawFileId}\n`;
-              callback(null, row);
+                // Robust sanitization
+                const sellerId = (seller.seller_id || '').toString().trim();
+                if (!sellerId) {
+                  // Skip invalid ID
+                  callback();
+                  return;
+                }
+
+                // Deduplication within the same file (same domain)
+                if (seenSellerIds.has(sellerId)) {
+                  // Skip duplicate
+                  callback();
+                  return;
+                }
+                seenSellerIds.add(sellerId);
+
+                const sellerType = (seller.seller_type || 'PUBLISHER').toString().toUpperCase().trim(); // Default to PUBLISHER if missing? Or keep empty.
+                // Spec says seller_type is required (PUBLISHER, INTERMEDIARY, BOTH). Let's keep raw but trim.
+
+                // Name sanitization: Remove tabs, newlines, null chars to prevent COPY corruption
+                let name = (seller.name || '').toString();
+                // Replace invalid characters for TSV
+                name = name.replace(/[\t\n\r\0]/g, ' ').trim();
+                // Truncate if too long (DB limit?) - usually text or varchar(255). Let's start with safe mapping.
+
+                // Confidential handling
+                let isConfidential = false;
+                if (seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1') {
+                  isConfidential = true;
+                }
+
+                const row = `${sellerId}\t${options.domain}\t${sellerType}\t${name}\t${isConfidential}\t${rawFileId}\n`;
+                callback(null, row);
+              } catch (e) {
+                // Skip malformed record but continue stream
+                callback();
+              }
             },
           }),
           ingestStream,

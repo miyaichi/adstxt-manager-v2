@@ -132,4 +132,116 @@ app.openapi(getFilesRoute, async (c) => {
   return c.json(files as any);
 });
 
+// New Route: Fetch and Import Sellers.json
+const fetchRoute = createRoute({
+  method: 'get',
+  path: '/fetch',
+  request: {
+    query: z.object({
+      domain: z.string().openapi({ description: 'Domain to fetch sellers.json from' }),
+      save: z.enum(['true', 'false']).optional().default('false').openapi({ description: 'Save result to DB' }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Parsed sellers.json content',
+      content: {
+        'application/json': {
+          schema: z.object({
+            domain: z.string(),
+            sellers_json_url: z.string(),
+            version: z.string().optional(),
+            contact_email: z.string().optional(),
+            contact_address: z.string().optional(),
+            sellers: z.array(z.any()), // Use specific schema if needed, but 'any' is flexible for response
+            fetched_at: z.string().optional(),
+          }),
+        },
+      },
+    },
+    400: { description: 'Bad Request' },
+    500: { description: 'Fetch error' },
+  },
+});
+
+import { StreamImporter } from '../ingest/stream_importer';
+import client from '../lib/http'; // Axios client
+
+app.openapi(fetchRoute, async (c) => {
+  const { domain, save } = c.req.valid('query');
+  const url = `https://${domain}/sellers.json`;
+
+  // For MVP, we use StreamImporter if save=true.
+  // If save=false (preview), we might just fetch and parse directly without DB.
+  // However, StreamImporter is designed for DB Ingest.
+  // Let's implement a simple fetch-and-return for preview, and use Importer for background save.
+
+  // BUT frontend calls with save=true ?
+  // Frontend code calls: /api/proxy/sellers/fetch?domain=${domain}&save=true
+
+  // If save=true, we should initiate import.
+  // However, StreamImporter is void, it imports to DB. It doesn't return the content.
+  // Frontend expects the content back to display it instantly.
+
+  // Strategy:
+  // 1. Fetch content (buffer or stream).
+  // 2. Return content to user.
+  // 3. (Async) If save=true, trigger Import? Or do it synchronously?
+  // Since StreamImporter fetches again, double fetch is wasteful but safer for separation.
+  // Or we modify StreamImporter to accept stream/buffer?
+
+  // For simplicity and robustness (avoiding huge files memory issues):
+  // If save=true, run StreamImporter (DB Ingest).
+  // THEN query DB to return the data?
+  // Querying 10k records from DB to return to frontend is okay with paging, but frontend expects all?
+  // Frontend does client-side filtering. 10k records is ~1-2MB JSON. It's acceptable for modern browser.
+
+  try {
+    if (save === 'true') {
+      const importer = new StreamImporter(process.env.DATABASE_URL!);
+      try {
+        await importer.importSellersJson({ domain, url });
+      } finally {
+        await importer.close();
+      }
+
+      // After import, fetch from DB to return
+      // We need to return in specific format expected by frontend
+      // Reuse getSellers logic but for specific domain and no limit?
+
+      const sellersRes = await query(
+        `SELECT seller_id, domain, seller_type, name, is_confidential 
+                 FROM sellers_catalog WHERE domain = $1`,
+        [domain],
+      );
+
+      // We also need metadata (version etc.) but we don't store it in sellers_catalog currently!
+      // We only store it in raw_sellers_files (maybe?) or we just don't store header meta.
+      // StreamImporter implementation parses 'sellers' array but ignores top-level meta like 'version'.
+      // TODO: Update Schema to store metadata? Or just return empty meta for now.
+      // Storing metadata is better.
+
+      return c.json({
+        domain,
+        sellers_json_url: url,
+        version: '1.0', // Placeholder if not stored
+        sellers: sellersRes.rows,
+        fetched_at: new Date().toISOString(),
+      } as any);
+    } else {
+      // Ephemeral Fetch (No DB save)
+      // Just axios get and return
+      const res = await client.get(url, { responseType: 'json' });
+      return c.json({
+        domain,
+        sellers_json_url: url,
+        ...res.data,
+      });
+    }
+  } catch (e: any) {
+    console.error('Fetch/Import Error:', e);
+    return c.json({ error: e.message || 'Failed to fetch sellers.json' }, 500);
+  }
+});
+
 export default app;
