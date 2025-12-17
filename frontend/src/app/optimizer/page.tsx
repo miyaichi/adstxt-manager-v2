@@ -11,6 +11,7 @@ import { AlertCircle, ArrowRight, Check, Download, FileText, Sparkles, Wand2 } f
 import { useEffect, useState } from "react"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { triggerBackgroundScan } from "@/lib/api-utils"
 import { extractRootDomain } from "@/lib/domain-utils"
 
 export default function OptimizerPage() {
@@ -61,6 +62,8 @@ export default function OptimizerPage() {
     if (normalizedDomain !== domain) {
       setDomain(normalizedDomain)
     }
+
+    triggerBackgroundScan(normalizedDomain, fileType)
 
     setIsFetching(true)
     try {

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { triggerBackgroundScan } from "@/lib/api-utils"
 import { extractRootDomain } from "@/lib/domain-utils"
 import { useTranslation } from "@/lib/i18n/language-context"
 import { Calendar, Globe, Search } from "lucide-react"
@@ -81,6 +82,9 @@ export default function AnalyticsPage() {
     const domain = extractRootDomain(searchInput)
     if (domain && isValidDomain(domain)) {
       setTargetDomain(domain)
+
+      // Trigger background scan
+      triggerBackgroundScan(domain, "ads.txt")
     }
   }
 

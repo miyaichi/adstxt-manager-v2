@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useTranslation } from "@/lib/i18n/language-context"
 import { ValidationResponse } from "@/types"
-import { CheckCircle, Download, Loader2, XCircle } from "lucide-react"
+import { CheckCircle, Download, HelpCircle, Loader2, XCircle } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import useSWR from "swr"
 
@@ -285,9 +286,29 @@ export function ValidatorResult({ domain, type }: Props) {
                     </TableCell>
                     <TableCell className="text-xs max-w-75">
                       {record.has_warning ? (
-                        <span className="text-yellow-700">{displayMessage}</span>
+                        record.validation_key ? (
+                          <Link
+                            href={`/warnings#${record.validation_key}`}
+                            className="text-yellow-700 hover:underline decoration-yellow-700/50 underline-offset-4 flex items-center gap-1 group"
+                          >
+                            <span>{displayMessage}</span>
+                            <HelpCircle className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </Link>
+                        ) : (
+                          <span className="text-yellow-700">{displayMessage}</span>
+                        )
                       ) : !record.is_valid ? (
-                        <span className="text-red-600 font-mono">{displayMessage}</span>
+                        record.validation_key ? (
+                          <Link
+                            href={`/warnings#${record.validation_key}`}
+                            className="text-red-600 font-mono hover:underline decoration-red-600/50 underline-offset-4 flex items-center gap-1 group"
+                          >
+                            <span>{displayMessage}</span>
+                            <HelpCircle className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </Link>
+                        ) : (
+                          <span className="text-red-600 font-mono">{displayMessage}</span>
+                        )
                       ) : null}
                     </TableCell>
                   </TableRow>
@@ -309,6 +330,6 @@ export function ValidatorResult({ domain, type }: Props) {
           {data.ads_txt_url}
         </a>
       </div>
-    </div >
+    </div>
   )
 }

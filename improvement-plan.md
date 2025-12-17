@@ -84,19 +84,19 @@
     -   [x] Explicitly mention if lines were commented out or modified, even if line count is static.
     -   *Why*: Current message is misleading (false negative).
 -   **Validator Scroll UI**:
-    -   [x] Fix background color truncation on horizontal scroll in the Validator results.
+    -   [ ] Fix background color truncation on horizontal scroll in the Validator results.
     -   *Why*: Visual bug makes reading long lines difficult.
 
 ### 2. Workflow & Data Logic (Medium Priority)
 -   **Optimizer Step Reordering**:
-    -   Change order to: 1. CleanUp -> 2. Owner Domain -> **3. Manager Domain Optimization** -> **4. Relationship Correction** -> 5. Sellers Verification.
+    -   [x] Change order to: 1. CleanUp -> 2. Owner Domain -> **3. Manager Domain Optimization** -> **4. Relationship Correction** -> 5. Sellers Verification.
     -   *Why*: Matches practical workflow better (fix manager domains before fixing relationships acting as manager).
 -   **Unified Scan Targeting**:
-    -   Ensure domains entered in *any* tool (Data Explorer, Insite Analytics, Optimizer) are added to the background scan queue, not just the Validator.
+    -   [x] Ensure domains entered in *any* tool (Data Explorer, Insite Analytics, Optimizer) are added to the background scan queue, not just the Validator.
     -   *Why*: Users expect the dashboard to track domains they have interest in.
 -   **Validation Help Integration**:
-    -   Link Validator error messages (`helpUrl`) to the specific section in the "Validation Codes" page.
-    -   Highlight the target section upon navigation.
+    -   [x] Link Validator error messages (`helpUrl`) to the specific section in the "Validation Codes" page.
+    -   [x] Highlight the target section upon navigation.
     -   *Why*: Makes the error codes explanation actually accessible and useful.
 -   **Data Explorer Combined Export**:
     -   Add CSV export option to combine `ads.txt` supply chain rows with `sellers.json` seller details.

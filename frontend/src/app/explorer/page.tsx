@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from "lucide-react"
 import { useState } from "react"
 
+import { triggerBackgroundScan } from "@/lib/api-utils"
 import { extractRootDomain } from "@/lib/domain-utils"
 import { useTranslation } from "@/lib/i18n/language-context"
 
@@ -24,9 +25,9 @@ export default function ExplorerPage() {
     const domain = extractRootDomain(searchInput)
     if (domain && isValidDomain(domain)) {
       setActiveDomain(domain)
-      // Normalize input display too? User request implies "extract from input", usually implies cleaning the input.
-      // But keeping input as is is fine if we use the cleaned version.
-      // Let's stick to using it for activeDomain.
+
+      // Trigger background scan for the domain
+      triggerBackgroundScan(domain, searchType as "ads.txt" | "app-ads.txt" | "sellers.json")
     }
   }
 
