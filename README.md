@@ -81,27 +81,37 @@ The results are displayed in separate tabs with validation status, stats, and do
 docker exec -it adstxt-v2-db psql -U postgres -d adstxt_v2 -c "SELECT count(*) FROM sellers_catalog;"
 ```
 
-## Running the Application
+## Running Locally (Development)
 
-### Backend API & Scheduler
+### 1. Database
+Start the PostgreSQL database container:
 
-Starts the API server (default port 3001) and the Cron Scheduler (runs every minute).
+```bash
+docker compose up -d db
+```
+The database will be available at `localhost:5433`.
+
+### 2. Backend API
+Start the API server on port 8080. We use port 8080 to avoid conflict with the frontend's default port (3000).
 
 ```bash
 cd backend
-npm run build
-npm start
+npm install
+# Connect to local DB (port 5433) and run on port 8080
+DATABASE_URL=postgres://postgres:password@localhost:5433/adstxt_v2 PORT=8080 npm run dev
 ```
 
-### Frontend UI
-
-Starts the Next.js frontend (default port 3000).
+### 3. Frontend UI
+Start the Next.js frontend, pointing it to the backend running on port 8080.
 
 ```bash
 cd frontend
 npm install
-npm run dev
+# Tell frontend where the backend is
+BACKEND_URL=http://localhost:8080 npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Features
 
