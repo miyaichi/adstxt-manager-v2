@@ -21,9 +21,6 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: test secrets
-        run: echo secret "${{secrets.DB_PASSWORD }}" | sed 's/./& /g'
-
       - name: Checkout
         uses: actions/checkout@v4
 
