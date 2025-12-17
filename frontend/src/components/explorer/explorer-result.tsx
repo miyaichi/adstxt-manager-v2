@@ -72,7 +72,7 @@ export function ExplorerResult({ domain, type }: Props) {
       headers.join(","),
       ...data.records.map((r) =>
         [
-          r.line_number === -1 ? "Auto" : r.line_number,
+          r.line_number === -1 ? t("common.auto") : r.line_number,
           r.domain || "",
           r.account_id || "",
           r.relationship || "",

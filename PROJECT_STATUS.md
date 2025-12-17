@@ -56,6 +56,7 @@
 - ✅ **Reliable Bulk Import**: `sellers_catalog` の取り込みを DELETE->COPY トランザクションに変更し、主キー競合を解消。
 - ✅ **Database Indexing**: `sellers_catalog` にTrigram Indexを追加し検索を高速化。
 - ✅ **API Proxy Reliability**: 外部API呼び出しにリトライ、タイムアウト、キャッシュを追加。
+- ✅ **Sellers.json Display Improvements**: `seller_domain` と `identifiers` のサポートを追加し、表示不具合を修正。
 
 ---
 **Next Actions**:

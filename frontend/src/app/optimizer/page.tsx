@@ -29,6 +29,7 @@ export default function OptimizerPage() {
     invalidAction: "remove" as "remove" | "comment",
     duplicateAction: "remove" as "remove" | "comment",
     fixOwnerDomain: false,
+    fixRelationship: false,
     fixManagerDomain: false,
     managerAction: "remove" as "remove" | "comment",
     verifySellers: false,
@@ -109,6 +110,7 @@ export default function OptimizerPage() {
                 invalidAction: steps.invalidAction,
                 duplicateAction: steps.duplicateAction,
                 fixOwnerDomain: steps.fixOwnerDomain,
+                fixRelationship: steps.fixRelationship,
                 fixManagerDomain: steps.fixManagerDomain,
                 managerAction: steps.managerAction,
                 verifySellers: steps.verifySellers,
@@ -150,12 +152,12 @@ export default function OptimizerPage() {
   // Sample data for demo
   const loadSampleData = () => {
     const sample = `# ${fileType} from ${domain || "example.com"}
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
-appnexus.com, 12345, DIRECT
-bad-line-here
-rubiconproject.com, 9999, RESELLER, 1234abcd
-# End of file`
+ google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+ google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+ appnexus.com, 12345, DIRECT
+ bad-line-here
+ rubiconproject.com, 9999, RESELLER, 1234abcd
+ # End of file`
     setInputContent(sample)
   }
 
@@ -168,12 +170,10 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
             <Wand2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Ads.txt Optimizer
+            {t("optimizerPage.title")}
           </h1>
         </div>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Optimize your ads.txt reliability by removing errors and verifying against sellers.json.
-        </p>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("optimizerPage.description")}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -184,12 +184,12 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
             <CardHeader>
               <CardTitle className="flex items-center">
                 <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
-                Source
+                {t("optimizerPage.source.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="domain">Publisher Domain (Required)</Label>
+                <Label htmlFor="domain">{t("optimizerPage.source.domainLabel")}</Label>
                 <Input
                   id="domain"
                   placeholder="e.g. nytimes.com"
@@ -205,7 +205,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                   onClick={() => setInputType("url")}
                   className="w-1/2"
                 >
-                  Fetch URL
+                  {t("optimizerPage.source.fetchUrl")}
                 </Button>
                 <Button
                   variant={inputType === "text" ? "default" : "outline"}
@@ -213,14 +213,14 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                   onClick={() => setInputType("text")}
                   className="w-1/2"
                 >
-                  Paste Text
+                  {t("optimizerPage.source.pasteText")}
                 </Button>
               </div>
 
               {inputType === "url" ? (
                 <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Target File</Label>
+                    <Label className="text-xs text-muted-foreground">{t("optimizerPage.source.targetFile")}</Label>
                     <Select value={fileType} onValueChange={(v: "ads.txt" | "app-ads.txt") => setFileType(v)}>
                       <SelectTrigger className="w-full">
                         <SelectValue />
@@ -239,11 +239,11 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                       className="bg-muted font-mono text-sm"
                     />
                     <Button onClick={handleFetch} disabled={!domain || isFetching}>
-                      {isFetching ? "Fetching..." : "Fetch"}
+                      {isFetching ? t("optimizerPage.source.fetching") : t("optimizerPage.source.fetch")}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    We will fetch the live {fileType} file from the domain above.
+                    {t("optimizerPage.source.fetchDescription", { fileType })}
                   </p>
                 </div>
               ) : (
@@ -256,7 +256,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                   />
                   <div className="flex justify-end">
                     <Button variant="ghost" size="sm" onClick={loadSampleData} className="text-xs">
-                      Load Sample
+                      {t("optimizerPage.source.loadSample")}
                     </Button>
                   </div>
                 </div>
@@ -269,7 +269,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Sparkles className="mr-2 h-5 w-5 text-amber-500" />
-                Optimization Steps
+                {t("optimizerPage.steps.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -284,19 +284,17 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                 <div className="space-y-4 w-full">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="s1" className="text-base font-medium cursor-pointer">
-                      1. Clean Up
+                      {t("optimizerPage.steps.step1.title")}
                     </Label>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Handle format errors, duplicate lines, and invalid comments.
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step1.description")}</p>
 
                   {steps.removeErrors && (
                     <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                       {/* Invalid Records Action */}
                       <div className="space-y-2">
                         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Invalid Records
+                          {t("optimizerPage.steps.step1.invalidRecords")}
                         </Label>
                         <div className="flex items-center space-x-4">
                           <label className="flex items-center space-x-2 text-sm cursor-pointer">
@@ -308,7 +306,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                               onChange={() => setSteps((s) => ({ ...s, invalidAction: "remove" }))}
                               className="accent-blue-600"
                             />
-                            <span>Remove</span>
+                            <span>{t("optimizerPage.steps.step1.remove")}</span>
                           </label>
                           <label className="flex items-center space-x-2 text-sm cursor-pointer">
                             <input
@@ -319,7 +317,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                               onChange={() => setSteps((s) => ({ ...s, invalidAction: "comment" }))}
                               className="accent-blue-600"
                             />
-                            <span>Comment out</span>
+                            <span>{t("optimizerPage.steps.step1.commentOut")}</span>
                           </label>
                         </div>
                       </div>
@@ -327,7 +325,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                       {/* Duplicates Action */}
                       <div className="space-y-2">
                         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Duplicates
+                          {t("optimizerPage.steps.step1.duplicates")}
                         </Label>
                         <div className="flex items-center space-x-4">
                           <label className="flex items-center space-x-2 text-sm cursor-pointer">
@@ -339,7 +337,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                               onChange={() => setSteps((s) => ({ ...s, duplicateAction: "remove" }))}
                               className="accent-blue-600"
                             />
-                            <span>Remove</span>
+                            <span>{t("optimizerPage.steps.step1.remove")}</span>
                           </label>
                           <label className="flex items-center space-x-2 text-sm cursor-pointer">
                             <input
@@ -350,7 +348,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                               onChange={() => setSteps((s) => ({ ...s, duplicateAction: "comment" }))}
                               className="accent-blue-600"
                             />
-                            <span>Comment out</span>
+                            <span>{t("optimizerPage.steps.step1.commentOut")}</span>
                           </label>
                         </div>
                       </div>
@@ -370,12 +368,10 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                 <div className="space-y-4 w-full">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="s2" className="text-base font-medium cursor-pointer">
-                      2. Owner Domain Verification
+                      {t("optimizerPage.steps.step2.title")}
                     </Label>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Ensure OWNERDOMAIN matches the specified domain. If missing, it will be added.
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step2.description")}</p>
 
                   {steps.fixOwnerDomain && (
                     <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
@@ -383,7 +379,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                         htmlFor="ownerDomain"
                         className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                       >
-                        Owner Domain
+                        {t("optimizerPage.steps.step2.label")}
                       </Label>
                       <Input
                         id="ownerDomain"
@@ -393,33 +389,51 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                         className="h-9"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Leave empty to use Publisher Domain ({domain || "example.com"}).
+                        {t("optimizerPage.steps.step2.placeholder", { domain: domain || "example.com" })}
                       </p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Step 3: Manager Domain */}
+              {/* Step 3: Relationship Correction */}
               <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
                 <Switch
                   id="s3"
+                  checked={steps.fixRelationship}
+                  onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixRelationship: c }))}
+                  className="mt-1"
+                />
+                <div className="space-y-4 w-full">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="s3" className="text-base font-medium cursor-pointer">
+                      {t("optimizerPage.steps.step3.title")}
+                    </Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step3.description")}</p>
+                </div>
+              </div>
+
+              {/* Step 4: Manager Domain */}
+              <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
+                <Switch
+                  id="s4"
                   checked={steps.fixManagerDomain}
                   onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixManagerDomain: c }))}
                   className="mt-1"
                 />
                 <div className="space-y-4 w-full">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="s3" className="text-base font-medium cursor-pointer">
-                      3. Manager Domain Optimization
+                    <Label htmlFor="s4" className="text-base font-medium cursor-pointer">
+                      {t("optimizerPage.steps.step4.title")}
                     </Label>
                   </div>
-                  <p className="text-sm text-muted-foreground">Resolve old or unnecessary MANAGERDOMAIN entries.</p>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step4.description")}</p>
 
                   {steps.fixManagerDomain && (
                     <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
                       <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Action
+                        {t("optimizerPage.steps.step4.action")}
                       </Label>
                       <div className="flex items-center space-x-4">
                         <label className="flex items-center space-x-2 text-sm cursor-pointer">
@@ -431,7 +445,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                             onChange={() => setSteps((s) => ({ ...s, managerAction: "remove" }))}
                             className="accent-blue-600"
                           />
-                          <span>Remove</span>
+                          <span>{t("optimizerPage.steps.step1.remove")}</span>
                         </label>
                         <label className="flex items-center space-x-2 text-sm cursor-pointer">
                           <input
@@ -442,7 +456,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                             onChange={() => setSteps((s) => ({ ...s, managerAction: "comment" }))}
                             className="accent-blue-600"
                           />
-                          <span>Comment out</span>
+                          <span>{t("optimizerPage.steps.step1.commentOut")}</span>
                         </label>
                       </div>
                     </div>
@@ -450,28 +464,26 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                 </div>
               </div>
 
-              {/* Step 4 */}
+              {/* Step 5 */}
               <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
                 <Switch
-                  id="s4"
+                  id="s5"
                   checked={steps.verifySellers}
                   onCheckedChange={(c) => setSteps((prev) => ({ ...prev, verifySellers: c }))}
                   className="mt-1"
                 />
                 <div className="space-y-4 w-full">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="s4" className="text-base font-medium cursor-pointer">
-                      4. Sellers.json Verification
+                    <Label htmlFor="s5" className="text-base font-medium cursor-pointer">
+                      {t("optimizerPage.steps.step5.title")}
                     </Label>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Remove entries that do not validate against upstream sellers.json files.
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step5.description")}</p>
 
                   {steps.verifySellers && (
                     <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
                       <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Action
+                        {t("optimizerPage.steps.step4.action")}
                       </Label>
                       <div className="flex items-center space-x-4">
                         <label className="flex items-center space-x-2 text-sm cursor-pointer">
@@ -483,7 +495,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                             onChange={() => setSteps((s) => ({ ...s, sellersAction: "remove" }))}
                             className="accent-blue-600"
                           />
-                          <span>Remove</span>
+                          <span>{t("optimizerPage.steps.step1.remove")}</span>
                         </label>
                         <label className="flex items-center space-x-2 text-sm cursor-pointer">
                           <input
@@ -494,7 +506,7 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                             onChange={() => setSteps((s) => ({ ...s, sellersAction: "comment" }))}
                             className="accent-blue-600"
                           />
-                          <span>Comment out</span>
+                          <span>{t("optimizerPage.steps.step1.commentOut")}</span>
                         </label>
                       </div>
                     </div>
@@ -510,16 +522,24 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
           <Card className="h-full border-muted/60 shadow-lg flex flex-col">
             <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-900/50">
               <div className="flex items-center justify-between">
-                <CardTitle>Optimization Preview</CardTitle>
+                <CardTitle>{t("optimizerPage.results.title")}</CardTitle>
                 <div className="flex items-center text-sm space-x-4">
                   <div className="flex flex-col items-end">
-                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Before</span>
-                    <span className="font-mono font-medium">{stats.originalLines} lines</span>
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">
+                      {t("optimizerPage.results.before")}
+                    </span>
+                    <span className="font-mono font-medium">
+                      {stats.originalLines} {t("optimizerPage.results.lines")}
+                    </span>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   <div className="flex flex-col items-end">
-                    <span className="text-muted-foreground text-xs uppercase tracking-wider">After</span>
-                    <span className="font-mono font-bold text-emerald-600">{stats.finalLines} lines</span>
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">
+                      {t("optimizerPage.results.after")}
+                    </span>
+                    <span className="font-mono font-bold text-emerald-600">
+                      {stats.finalLines} {t("optimizerPage.results.lines")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -541,25 +561,25 @@ rubiconproject.com, 9999, RESELLER, 1234abcd
                   {stats.removedCount > 0 && (
                     <span className="flex items-center text-amber-600 font-medium">
                       <AlertCircle className="mr-1.5 h-4 w-4" />
-                      {stats.removedCount} lines removed
+                      {t("optimizerPage.results.linesRemoved", { count: stats.removedCount.toString() })}
                     </span>
                   )}
                   {stats.errorsFound > 0 && (
                     <span className="flex items-center text-red-600 font-medium">
                       <AlertCircle className="mr-1.5 h-4 w-4" />
-                      {stats.errorsFound} format errors
+                      {t("optimizerPage.results.formatErrors", { count: stats.errorsFound.toString() })}
                     </span>
                   )}
                   {stats.removedCount === 0 && inputContent && (
                     <span className="flex items-center text-emerald-600 font-medium">
                       <Check className="mr-1.5 h-4 w-4" />
-                      No issues found
+                      {t("optimizerPage.results.noIssues")}
                     </span>
                   )}
                 </div>
                 <Button onClick={handleDownload} disabled={!inputContent} className="bg-blue-600 hover:bg-blue-700">
                   <Download className="mr-2 h-4 w-4" />
-                  Download ads.txt / app-ads.txt
+                  {t("optimizerPage.results.download", { fileType })}
                 </Button>
               </div>
             </CardFooter>

@@ -2,9 +2,10 @@
 
 ## Feature Roadmap
 
-1. **Internationalization (i18n) Support**
-   - Implement i18n support to allow the application to support multiple languages (en and ja).
-   - The page displays in the appropriate language based on the user's browser language and any language switching within the page.
+- [x] **Implement Internationalization (i18n) Support** `Completed`
+  - [x] Prepare frontend for i18n (LanguageProvider, translations).
+  - [x] Add Japanese translations for all UI elements and messages.
+  - [x] Ensure all pages and components use translated strings (including Optimizer).
    - Reference: adstxt-manager (v1) `frontend/src/i18n`.
 
 2. **Publish the Validation Codes / Warning Page**
@@ -18,17 +19,17 @@
    - Display insights into how that publisher is perceived externally.
    - Reference: adstxt-manager (v1) `SiteAnalysisPage`.
 
-4. **ads.txt/app-ads.txt Optimizer**
+4. **ads.txt/app-ads.txt Optimizer** `Completed`
    - Optimizer for publishers who have published Ads.txt/app-ads.txt to improve step by step.
    - Steps include:
      1. Removing errors and duplicate records
      2. Setting ownerdomain and removing managerdomain that should not be used
-     3. Removing entries that do not exist in the corresponding sellers.json
+     3. Correcting DIRECT/RESELLER relationship based on sellers.json
+     4. Removing entries that do not exist in the corresponding sellers.json
 
-5. **Integrate adstxt-validator package (Deferred)**
-   - Integrate the `@miyaichi/ads-txt-validator` package into the project.
-   - Currently, we will proceed with the existing internal validator in `v2/backend` and switch to the package later to unify logic.
-   - Repository: https://www.npmjs.com/package/adstxt-validator
+5. **Integrate adstxt-validator package** `Completed`
+   - Integrate the `adstxt-validator` package into the project.
+   - Replaced internal validator logic in `v2/backend` with the package.
 
 ## Technical Improvements & Fixes
 
@@ -63,6 +64,15 @@ Based on Architecture, Code, and DB evaluations.
 - **Feature: Direct/Reseller Ratio**: ✅ Completed
   - **Request**: Display the ratio of DIRECT vs RESELLER records in Validator results.
   - **Action**: Added stats calculation in backend and UI display in `ValidatorResult` component.
+  
+- **Sellers.json Display Improvements**: ✅ Completed
+  - **Issue**:
+    1. `sellers.json` explorer displayed source domain instead of seller's domain in Domain column.
+    2. Optional `identifiers` field was not displayed.
+  - **Action**:
+    - **DB**: Added `seller_domain` and `identifiers` columns to `sellers_catalog`.
+    - **Backend**: Updated ingestion to store these fields and API to return `seller_domain` as primary domain and include `identifiers`.
+    - **Frontend**: Updated `SellersResult` to show `seller_domain` (plain text) and a new `Identifiers` column.
 
 ### Medium Priority (Performance & Reliability)
 
@@ -77,9 +87,9 @@ Based on Architecture, Code, and DB evaluations.
   - **Issue**: `backend/src/api/analytics.ts` calls OpenSincera API without timeouts or retries.
   - **Action**: Add abortable timeouts (e.g., 5s), limited retries, and short-term caching to prevent worker exhaustion.
 
-- **OpenX Sellers.json Error**: ⏳ Pending
+- **OpenX Sellers.json Error**: ✅ Completed
   - **Issue**: Scanning `openx.com` sellers.json returns 500 Error (`Failed to load report`). Likely due to timeout or massive file size.
-  - **Action**: Investigate timeout settings or stream processing capability for extremely large sellers.json files.
+  - **Action**: Optimized stream processing in `StreamImporter` to handle large files efficiently and increased timeouts where necessary. Implemented robust sanitization and deduplication.
 
 ### Low Priority (Architecture & Operations)
 

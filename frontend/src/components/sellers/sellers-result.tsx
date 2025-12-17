@@ -89,7 +89,7 @@ export function SellersResult({ domain }: Props) {
       t("sellersPage.headers.name"),
       t("sellersPage.headers.type"),
       t("sellersPage.headers.domain"),
-      "Identifiers",
+      t("sellersPage.headers.identifiers"),
       t("sellersPage.headers.confidential"),
       t("sellersPage.headers.passthrough")
     ]
@@ -163,15 +163,15 @@ export function SellersResult({ domain }: Props) {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Version:</span>
+              <span className="text-muted-foreground">{t("sellersPage.version")}:</span>
               <span className="font-mono">{data.version || "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Contact Email:</span>
+              <span className="text-muted-foreground">{t("sellersPage.contactEmail")}:</span>
               <span>{data.contact_email || "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Contact Address:</span>
+              <span className="text-muted-foreground">{t("sellersPage.contactAddress")}:</span>
               <span className="truncate max-w-[200px]" title={data.contact_address}>
                 {data.contact_address || "-"}
               </span>
@@ -233,7 +233,7 @@ export function SellersResult({ domain }: Props) {
                 <TableHead>{t("sellersPage.headers.name")}</TableHead>
                 <TableHead>{t("sellersPage.headers.type")}</TableHead>
                 <TableHead>{t("sellersPage.headers.domain")}</TableHead>
-                <TableHead>Identifiers</TableHead>
+                <TableHead>{t("sellersPage.headers.identifiers")}</TableHead>
                 <TableHead>{t("sellersPage.headers.confidential")}</TableHead>
                 <TableHead>{t("sellersPage.headers.passthrough")}</TableHead>
               </TableRow>
@@ -279,7 +279,7 @@ export function SellersResult({ domain }: Props) {
                       )}
                     </TableCell>
                     <TableCell className="text-center font-mono text-xs text-muted-foreground">
-                      {seller.is_passthrough ? "Yes" : "-"}
+                      {seller.is_passthrough ? t("common.yes") : "-"}
                     </TableCell>
                   </TableRow>
                 ))

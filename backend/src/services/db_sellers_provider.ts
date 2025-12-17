@@ -46,8 +46,8 @@ export class DbSellersProvider implements SellersJsonProvider {
 
     const foundSellersMap = new Map();
     sellersRes.rows.forEach((row) => {
-      // Normalize boolean for is_confidential
-      row.is_confidential = row.is_confidential === true;
+      // Normalize boolean for is_confidential to 0/1 as expected by package types
+      row.is_confidential = row.is_confidential === true ? 1 : 0;
       foundSellersMap.set(row.seller_id, row);
     });
 

@@ -156,6 +156,34 @@ export const translations = {
     commentRaw: {
       en: "Comment / Raw",
       ja: "Comment / Raw"
+    },
+    ok: {
+      en: "OK",
+      ja: "OK"
+    },
+    error: {
+      en: "Error",
+      ja: "エラー"
+    },
+    yes: {
+      en: "Yes",
+      ja: "はい"
+    },
+    no: {
+      en: "No",
+      ja: "いいえ"
+    },
+    direct: {
+      en: "DIRECT",
+      ja: "DIRECT"
+    },
+    reseller: {
+      en: "RESELLER",
+      ja: "RESELLER"
+    },
+    records: {
+      en: "records",
+      ja: "レコード"
     }
   },
   validation: {
@@ -177,6 +205,9 @@ export const translations = {
     publishers: { en: "Publishers", ja: "Publishers" },
     intermediaries: { en: "Intermediaries", ja: "Intermediaries" },
     both: { en: "Both", ja: "Both" },
+    version: { en: "Version", ja: "バージョン" },
+    contactEmail: { en: "Contact Email", ja: "連絡先メール" },
+    contactAddress: { en: "Contact Address", ja: "連絡先住所" },
     filterPlaceholder: { en: "Filter sellers...", ja: "Filter sellers..." },
     confidential: { en: "Confidential", ja: "Confidential" },
     passthrough: { en: "Passthrough", ja: "Passthrough" },
@@ -185,6 +216,7 @@ export const translations = {
       name: { en: "Name", ja: "Name" },
       type: { en: "Type", ja: "Type" },
       domain: { en: "Domain", ja: "Domain" },
+      identifiers: { en: "Identifiers", ja: "識別子" },
       confidential: { en: "Confidential", ja: "Confidential" },
       passthrough: { en: "Passthrough", ja: "Passthrough" }
     },
@@ -373,6 +405,85 @@ export const translations = {
       loading: { en: "Loading...", ja: "読み込み中..." },
       failed: { en: "Failed to load data.", ja: "データの読み込みに失敗しました。" },
       noScans: { en: "No scans found yet.", ja: "スキャンデータはまだありません。" }
+    }
+  },
+  optimizerPage: {
+    title: { en: "Ads.txt Optimizer", ja: "Ads.txt オプティマイザー" },
+    description: {
+      en: "Optimize your ads.txt reliability by removing errors and verifying against sellers.json.",
+      ja: "エラーを取り除き、sellers.jsonと照合することで、ads.txtの信頼性を最適化します。"
+    },
+    source: {
+      title: { en: "Source", ja: "ソース" },
+      domainLabel: { en: "Publisher Domain (Required)", ja: "パブリッシャードメイン (必須)" },
+      fetchUrl: { en: "Fetch URL", ja: "URLから取得" },
+      pasteText: { en: "Paste Text", ja: "テキストを貼り付け" },
+      targetFile: { en: "Target File", ja: "対象ファイル" },
+      fetch: { en: "Fetch", ja: "取得" },
+      fetching: { en: "Fetching...", ja: "取得中..." },
+      loadSample: { en: "Load Sample", ja: "サンプルを読み込む" },
+      fetchDescription: {
+        en: "We will fetch the live {{fileType}} file from the domain above.",
+        ja: "上記のドメインからライブ{{fileType}}ファイルを取得します。"
+      }
+    },
+    steps: {
+      title: { en: "Optimization Steps", ja: "最適化ステップ" },
+      step1: {
+        title: { en: "1. Clean Up", ja: "1. クリーンアップ" },
+        description: {
+          en: "Handle format errors, duplicate lines, and invalid comments.",
+          ja: "フォーマットエラー、重複行、無効なコメントを処理します。"
+        },
+        invalidRecords: { en: "Invalid Records", ja: "無効なレコード" },
+        duplicates: { en: "Duplicates", ja: "重複" },
+        remove: { en: "Remove", ja: "削除" },
+        commentOut: { en: "Comment out", ja: "コメントアウト" }
+      },
+      step2: {
+        title: { en: "2. Owner Domain Verification", ja: "2. Owner Domain 検証" },
+        description: {
+          en: "Ensure OWNERDOMAIN matches the specified domain. If missing, it will be added.",
+          ja: "OWNERDOMAINが指定されたドメインと一致することを確認します。見つからない場合は追加されます。"
+        },
+        label: { en: "Owner Domain", ja: "Owner Domain" },
+        placeholder: {
+          en: "Leave empty to use Publisher Domain ({{domain}}).",
+          ja: "空欄の場合はパブリッシャードメイン ({{domain}}) を使用します。"
+        }
+      },
+      step3: {
+        title: { en: "3. Relationship Correction", ja: "3. 関係性の修正" },
+        description: {
+          en: "Correct DIRECT/RESELLER relationship based on sellers.json data.",
+          ja: "sellers.jsonデータに基づいてDIRECT/RESELLERの関係性を修正します。"
+        }
+      },
+      step4: {
+        title: { en: "4. Manager Domain Optimization", ja: "4. Manager Domain 最適化" },
+        description: {
+          en: "Resolve old or unnecessary MANAGERDOMAIN entries.",
+          ja: "古くなった、または不要なMANAGERDOMAINエントリを解決します。"
+        },
+        action: { en: "Action", ja: "アクション" }
+      },
+      step5: {
+        title: { en: "5. Sellers.json Verification", ja: "5. Sellers.json 検証" },
+        description: {
+          en: "Remove entries that do not validate against upstream sellers.json files.",
+          ja: "アップストリームのsellers.jsonファイルで検証できないエントリを削除します。"
+        }
+      }
+    },
+    results: {
+      title: { en: "Optimization Preview", ja: "最適化プレビュー" },
+      before: { en: "Before", ja: "修正前" },
+      after: { en: "After", ja: "修正後" },
+      lines: { en: "lines", ja: "行" },
+      linesRemoved: { en: "{{count}} lines removed", ja: "{{count}} 行削除されました" },
+      formatErrors: { en: "{{count}} format errors", ja: "{{count}} フォーマットエラー" },
+      noIssues: { en: "No issues found", ja: "問題は見つかりませんでした" },
+      download: { en: "Download {{fileType}}", ja: "{{fileType}} をダウンロード" }
     }
   },
   footer: {

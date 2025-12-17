@@ -139,26 +139,30 @@ export function ValidatorResult({ domain, type }: Props) {
         {data.stats.direct_count !== undefined && (
           <Card>
             <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm text-blue-600">DIRECT</CardTitle>
+              <CardTitle className="text-sm text-blue-600">{t("common.direct")}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <div className="text-2xl font-bold text-blue-600">
                 {data.stats.valid > 0 ? Math.round((data.stats.direct_count / data.stats.valid) * 100) : 0}%
               </div>
-              <p className="text-xs text-muted-foreground">{data.stats.direct_count} records</p>
+              <p className="text-xs text-muted-foreground">
+                {data.stats.direct_count} {t("common.records")}
+              </p>
             </CardContent>
           </Card>
         )}
         {data.stats.reseller_count !== undefined && (
           <Card>
             <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm text-purple-600">RESELLER</CardTitle>
+              <CardTitle className="text-sm text-purple-600">{t("common.reseller")}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <div className="text-2xl font-bold text-purple-600">
                 {data.stats.valid > 0 ? Math.round((data.stats.reseller_count / data.stats.valid) * 100) : 0}%
               </div>
-              <p className="text-xs text-muted-foreground">{data.stats.reseller_count} records</p>
+              <p className="text-xs text-muted-foreground">
+                {data.stats.reseller_count} {t("common.records")}
+              </p>
             </CardContent>
           </Card>
         )}
@@ -272,11 +276,11 @@ export function ValidatorResult({ domain, type }: Props) {
                       <TableCell>
                         {record.is_valid ? (
                           <div className="flex items-center text-green-600 font-medium text-xs">
-                            <CheckCircle className="w-3.5 h-3.5 mr-1" /> OK
+                            <CheckCircle className="w-3.5 h-3.5 mr-1" /> {t("common.ok")}
                           </div>
                         ) : (
                           <div className="flex items-center text-red-600 font-medium text-xs">
-                            <XCircle className="w-3.5 h-3.5 mr-1" /> Error
+                            <XCircle className="w-3.5 h-3.5 mr-1" /> {t("common.error")}
                           </div>
                         )}
                       </TableCell>
