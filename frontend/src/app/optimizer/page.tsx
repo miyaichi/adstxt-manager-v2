@@ -11,6 +11,7 @@ import { AlertCircle, ArrowRight, Check, Download, FileText, Sparkles, Wand2 } f
 import { useEffect, useState } from "react"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { extractRootDomain } from "@/lib/domain-utils"
 
 export default function OptimizerPage() {
   const { t } = useTranslation()
@@ -42,6 +43,8 @@ export default function OptimizerPage() {
     originalLines: 0,
     finalLines: 0,
     removedCount: 0,
+    commentedCount: 0,
+    modifiedCount: 0,
     errorsFound: 0
   })
 
@@ -53,6 +56,12 @@ export default function OptimizerPage() {
 
   const handleFetch = async () => {
     if (!domain) return
+    const normalizedDomain = extractRootDomain(domain)
+    // Update state to normalized if different?
+    if (normalizedDomain !== domain) {
+      setDomain(normalizedDomain)
+    }
+
     setIsFetching(true)
     try {
       const response = await fetch(
@@ -60,7 +69,7 @@ export default function OptimizerPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ domain, fileType })
+          body: JSON.stringify({ domain: normalizedDomain, fileType })
         }
       )
 
@@ -84,7 +93,14 @@ export default function OptimizerPage() {
   useEffect(() => {
     if (!inputContent) {
       setOptimizedContent("")
-      setStats({ originalLines: 0, finalLines: 0, removedCount: 0, errorsFound: 0 })
+      setStats({
+        originalLines: 0,
+        finalLines: 0,
+        removedCount: 0,
+        commentedCount: 0,
+        modifiedCount: 0,
+        errorsFound: 0
+      })
       return
     }
 
@@ -564,13 +580,25 @@ export default function OptimizerPage() {
                       {t("optimizerPage.results.linesRemoved", { count: stats.removedCount.toString() })}
                     </span>
                   )}
+                  {stats.commentedCount !== undefined && stats.commentedCount > 0 && (
+                    <span className="flex items-center text-blue-600 font-medium">
+                      <FileText className="mr-1.5 h-4 w-4" />
+                      {stats.commentedCount} lines commented
+                    </span>
+                  )}
+                  {stats.modifiedCount !== undefined && stats.modifiedCount > 0 && (
+                    <span className="flex items-center text-purple-600 font-medium">
+                      <Sparkles className="mr-1.5 h-4 w-4" />
+                      {stats.modifiedCount} lines modified
+                    </span>
+                  )}
                   {stats.errorsFound > 0 && (
                     <span className="flex items-center text-red-600 font-medium">
                       <AlertCircle className="mr-1.5 h-4 w-4" />
                       {t("optimizerPage.results.formatErrors", { count: stats.errorsFound.toString() })}
                     </span>
                   )}
-                  {stats.removedCount === 0 && inputContent && (
+                  {stats.removedCount === 0 && !stats.commentedCount && !stats.modifiedCount && inputContent && (
                     <span className="flex items-center text-emerald-600 font-medium">
                       <Check className="mr-1.5 h-4 w-4" />
                       {t("optimizerPage.results.noIssues")}

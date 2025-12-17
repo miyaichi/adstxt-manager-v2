@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from "lucide-react"
 import { useState } from "react"
 
+import { extractRootDomain } from "@/lib/domain-utils"
 import { useTranslation } from "@/lib/i18n/language-context"
 
 export default function ExplorerPage() {
@@ -20,13 +21,12 @@ export default function ExplorerPage() {
   const isValidDomain = (domain: string) => /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/.test(domain)
 
   const handleSearch = () => {
-    const domain = searchInput
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .replace(/\/.*$/, "")
+    const domain = extractRootDomain(searchInput)
     if (domain && isValidDomain(domain)) {
       setActiveDomain(domain)
+      // Normalize input display too? User request implies "extract from input", usually implies cleaning the input.
+      // But keeping input as is is fine if we use the cleaned version.
+      // Let's stick to using it for activeDomain.
     }
   }
 
