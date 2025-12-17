@@ -85,11 +85,12 @@ Cloud Runへのデプロイ:
 ```bash
 # DB接続用の接続名を取得
 export DB_INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe adstxt-db-instance --format="value(connectionName)")
+export OPENSINCERA_API_KEY="your-opensincera-api-key"
 
 gcloud run deploy adstxt-backend \
     --image $REGION-docker.pkg.dev/$PROJECT_ID/adstxt-repo/backend:latest \
     --add-cloudsql-instances $DB_INSTANCE_CONNECTION_NAME \
-    --set-env-vars DATABASE_URL="postgres://postgres:your-db-password@/${DB_INSTANCE_CONNECTION_NAME}?host=/cloudsql/${DB_INSTANCE_CONNECTION_NAME}" \
+    --set-env-vars DATABASE_URL="postgres://postgres:your-db-password@/${DB_INSTANCE_CONNECTION_NAME}?host=/cloudsql/${DB_INSTANCE_CONNECTION_NAME}",OPENSINCERA_API_KEY=$OPENSINCERA_API_KEY \
     --allow-unauthenticated
 ```
 

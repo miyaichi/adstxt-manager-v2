@@ -25,6 +25,7 @@ GitHubリポジトリの Settings > Secrets and variables > Actions に以下の
 | `GCP_CREDENTIALS` | ダウンロードした `gcp-key.json` の中身すべて |
 | `DB_PASSWORD` | Cloud SQLのパスワード (`adstxt-db-password-123`) |
 | `DB_NAME` | データベース名 (`adstxt_v2`) |
+| `OPENSINCERA_API_KEY` | OpenSincera APIのキー |
 
 ## 3. 動作確認
 設定後、mainブランチに変更をPushすると `Deploy to Cloud Run` ワークフローが実行されます。
