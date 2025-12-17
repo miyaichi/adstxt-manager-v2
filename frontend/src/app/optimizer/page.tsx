@@ -412,12 +412,12 @@ export default function OptimizerPage() {
                 </div>
               </div>
 
-              {/* Step 3: Relationship Correction */}
+              {/* Step 3: Manager Domain - MOVED UP */}
               <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
                 <Switch
                   id="s3"
-                  checked={steps.fixRelationship}
-                  onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixRelationship: c }))}
+                  checked={steps.fixManagerDomain}
+                  onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixManagerDomain: c }))}
                   className="mt-1"
                 />
                 <div className="space-y-4 w-full">
@@ -427,29 +427,11 @@ export default function OptimizerPage() {
                     </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step3.description")}</p>
-                </div>
-              </div>
-
-              {/* Step 4: Manager Domain */}
-              <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
-                <Switch
-                  id="s4"
-                  checked={steps.fixManagerDomain}
-                  onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixManagerDomain: c }))}
-                  className="mt-1"
-                />
-                <div className="space-y-4 w-full">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="s4" className="text-base font-medium cursor-pointer">
-                      {t("optimizerPage.steps.step4.title")}
-                    </Label>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step4.description")}</p>
 
                   {steps.fixManagerDomain && (
                     <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
                       <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t("optimizerPage.steps.step4.action")}
+                        {t("optimizerPage.steps.step3.action")}
                       </Label>
                       <div className="flex items-center space-x-4">
                         <label className="flex items-center space-x-2 text-sm cursor-pointer">
@@ -477,6 +459,24 @@ export default function OptimizerPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Step 4: Relationship Correction - MOVED DOWN */}
+              <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-white transition-colors dark:hover:bg-slate-800">
+                <Switch
+                  id="s4"
+                  checked={steps.fixRelationship}
+                  onCheckedChange={(c) => setSteps((prev) => ({ ...prev, fixRelationship: c }))}
+                  className="mt-1"
+                />
+                <div className="space-y-4 w-full">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="s4" className="text-base font-medium cursor-pointer">
+                      {t("optimizerPage.steps.step4.title")}
+                    </Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{t("optimizerPage.steps.step4.description")}</p>
                 </div>
               </div>
 

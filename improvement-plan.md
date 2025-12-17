@@ -77,14 +77,14 @@
 
 ### 1. UX & Usability (High Priority)
 -   **Domain Input Normalization**:
-    -   Automatically extract root domain from inputs like `https://example.com` or `https://example.com/ads.txt` using PSL (Public Suffix List).
+    -   [x] Automatically extract root domain from inputs like `https://example.com` or `https://example.com/ads.txt` using PSL (Public Suffix List).
     -   *Why*: Reduces user errors (e.g., pasting full URLs).
 -   **Optimizer Result Clarity**:
-    -   Fix "No issues found" message when lines are commented out but count hasn't changed.
-    -   Explicitly mention if lines were commented out or modified, even if line count is static.
+    -   [x] Fix "No issues found" message when lines are commented out but count hasn't changed.
+    -   [x] Explicitly mention if lines were commented out or modified, even if line count is static.
     -   *Why*: Current message is misleading (false negative).
 -   **Validator Scroll UI**:
-    -   Fix background color truncation on horizontal scroll in the Validator results.
+    -   [x] Fix background color truncation on horizontal scroll in the Validator results.
     -   *Why*: Visual bug makes reading long lines difficult.
 
 ### 2. Workflow & Data Logic (Medium Priority)
