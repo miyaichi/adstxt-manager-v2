@@ -45,8 +45,6 @@
     -   Refine error handling and loading states.
 -   **Feedback Integration**:
     -   Embed a feedback form (likely Google Forms or Typeform) for beta testers.
--   **AI Adviser i18n Support**:
-    -   Support multilingual prompts for AI Adviser.
 
 ## ⚙️ Medium Priority (Operations & Efficiency)
 
@@ -74,6 +72,10 @@
 -   **Integrate adstxt-validator package**
     -   Unified validation logic using external package.
     -   Published and versioned on GitHub Packages.
+-   **AI Adviser i18n & Enhancement**
+    -   [x] Support multilingual prompts (English/Japanese) for AI Adviser.
+    -   [x] Dynamic Benchmark fetching from OpenSincera API.
+    -   [x] Integrated AI Advisor into Analytics page.
 
 ## 📣 Private Beta Feedback (Prioritized)
 
