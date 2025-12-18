@@ -1,5 +1,6 @@
 "use client"
 
+import { AdviserSection } from "@/components/analytics/adviser-section"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,7 @@ type AnalyticsData = {
   reseller_count?: number | null
   id_absorption_rate?: number | null
   updated_at?: string
+  similar_publishers?: number[]
 }
 
 const fetcher = async (url: string) => {
@@ -48,7 +50,7 @@ const fetcher = async (url: string) => {
       try {
         const inner = JSON.parse(msg)
         if (inner.error) msg = inner.error
-      } catch {}
+      } catch { }
 
       if (res.status === 404) {
         throw new Error("Domain not found")
@@ -303,6 +305,9 @@ export default function AnalyticsPage() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* AI Adviser Section */}
+              <AdviserSection analyticsData={data} />
 
               <div className="text-right text-xs text-muted-foreground">
                 <span className="flex items-center justify-end gap-1">

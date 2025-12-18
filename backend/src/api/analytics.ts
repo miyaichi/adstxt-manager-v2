@@ -25,6 +25,7 @@ const AnalyticsResponseSchema = z.object({
   reseller_count: z.number().nullable().optional(),
   id_absorption_rate: z.number().nullable().optional(),
   updated_at: z.string().optional(),
+  similar_publishers: z.array(z.number()).optional(),
 });
 
 const ErrorSchema = z.object({
@@ -185,6 +186,7 @@ app.openapi(getAnalyticsRoute, async (c) => {
       reseller_count: data.reseller_count,
       id_absorption_rate: data.id_absorption_rate,
       updated_at: data.updated_at || new Date().toISOString(),
+      similar_publishers: data.similar_publishers?.content || [],
     };
 
     // Update Cache

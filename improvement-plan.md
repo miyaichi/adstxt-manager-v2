@@ -45,6 +45,8 @@
     -   Refine error handling and loading states.
 -   **Feedback Integration**:
     -   Embed a feedback form (likely Google Forms or Typeform) for beta testers.
+-   **AI Adviser i18n Support**:
+    -   Support multilingual prompts for AI Adviser.
 
 ## ⚙️ Medium Priority (Operations & Efficiency)
 
