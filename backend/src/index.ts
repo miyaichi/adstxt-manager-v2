@@ -33,7 +33,13 @@ const app = new OpenAPIHono();
 app.use(
   '/*',
   cors({
-    origin: process.env.NODE_ENV === 'production' ? (process.env.FRONTEND_URL as string) : '*',
+    origin: (origin) => {
+      // In production, strictly match FRONTEND_URL if set, otherwise allow all (or allow none if preferred security-wise)
+      if (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL) {
+        return process.env.FRONTEND_URL === origin ? origin : null;
+      }
+      return origin; // Allow all in dev or if config missing (or return origin to reflect back)
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposeHeaders: ['Content-Length'],
