@@ -84,7 +84,7 @@
     -   [x] Explicitly mention if lines were commented out or modified, even if line count is static.
     -   *Why*: Current message is misleading (false negative).
 -   **Validator Scroll UI**:
-    -   [ ] Fix background color truncation on horizontal scroll in the Validator results.
+    -   [x] Fix background color truncation on horizontal scroll in the Validator results.
     -   *Why*: Visual bug makes reading long lines difficult.
 
 ### 2. Workflow & Data Logic (Medium Priority)
@@ -99,8 +99,8 @@
     -   [x] Highlight the target section upon navigation.
     -   *Why*: Makes the error codes explanation actually accessible and useful.
 -   **Data Explorer Combined Export**:
-    -   Add CSV export option to combine `ads.txt` supply chain rows with `sellers.json` seller details.
-    -   Columns: Line info + matched Seller info (ID, Name, Type, Domain, etc.).
+    -   [x] Add CSV export option to combine `ads.txt` supply chain rows with `sellers.json` seller details.
+    -   [x] Added "Seller Name", "Seller Type", "Seller Domain" columns to default view and CSV export (with BOM for Excel support).
     -   *Why*: Simplifies supply chain auditing.
 
 ### 3. Content & Documentation (Low Priority)
