@@ -72,6 +72,10 @@
 -   **Integrate adstxt-validator package**
     -   Unified validation logic using external package.
     -   Published and versioned on GitHub Packages.
+-   **AI Adviser i18n & Enhancement**
+    -   [x] Support multilingual prompts (English/Japanese) for AI Adviser.
+    -   [x] Dynamic Benchmark fetching from OpenSincera API.
+    -   [x] Integrated AI Advisor into Analytics page.
 
 ## 📣 Private Beta Feedback (Prioritized)
 

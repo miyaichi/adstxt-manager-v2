@@ -3,6 +3,7 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import dotenv from 'dotenv';
 import adstxtApp from './api/adstxt';
+import adviserApp from './api/adviser';
 import analyticsApp from './api/analytics';
 import monitorApp from './api/monitor';
 import optimizerApp from './api/optimizer';
@@ -51,11 +52,14 @@ app.use(
 // Global Error Handler
 app.onError((err, c) => {
   console.error('[Uncaught Error]', err);
-  return c.json({
-    error: 'Internal Server Error',
-    message: err.message,
-    stack: err.stack,
-  }, 500);
+  return c.json(
+    {
+      error: 'Internal Server Error',
+      message: err.message,
+      stack: err.stack,
+    },
+    500,
+  );
 });
 
 // Logger middleware
@@ -80,6 +84,7 @@ app.route('/api/adstxt', adstxtApp);
 app.route('/api/monitor', monitorApp);
 app.route('/api/analytics', analyticsApp);
 app.route('/api/optimizer', optimizerApp);
+app.route('/api/adviser', adviserApp);
 
 // OpenAPI Docs
 app.doc('/doc', {

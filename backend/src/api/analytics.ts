@@ -25,6 +25,7 @@ const AnalyticsResponseSchema = z.object({
   reseller_count: z.number().nullable().optional(),
   id_absorption_rate: z.number().nullable().optional(),
   updated_at: z.string().optional(),
+  similar_publishers: z.array(z.number()).optional(),
 });
 
 const ErrorSchema = z.object({
@@ -39,13 +40,17 @@ const getAnalyticsRoute = createRoute({
     query: z.object({
       domain: z
         .string()
-        .min(1)
+        .optional()
         .openapi({
-          param: {
-            name: 'domain',
-            in: 'query',
-          },
+          param: { name: 'domain', in: 'query' },
           example: 'nytimes.com',
+        }),
+      id: z
+        .string()
+        .optional()
+        .openapi({
+          param: { name: 'id', in: 'query' },
+          example: '123',
         }),
     }),
   },
@@ -56,7 +61,7 @@ const getAnalyticsRoute = createRoute({
           schema: AnalyticsResponseSchema,
         },
       },
-      description: 'Retrieve analytics data for a domain',
+      description: 'Retrieve analytics data for a domain or ID',
     },
     400: {
       content: {
@@ -72,7 +77,7 @@ const getAnalyticsRoute = createRoute({
           schema: ErrorSchema,
         },
       },
-      description: 'Domain not found',
+      description: 'Publisher not found',
     },
     500: {
       content: {
@@ -90,25 +95,35 @@ const analyticsCache = new Map<string, { timestamp: number; data: any }>();
 
 // Implementation
 app.openapi(getAnalyticsRoute, async (c) => {
-  const { domain } = c.req.valid('query');
+  const { domain, id } = c.req.valid('query');
   const apiKey = process.env.OPENSINCERA_API_KEY;
 
-  console.log(`[Analytics] Received request for domain: ${domain}`);
+  if (!domain && !id) {
+    return c.json({ error: 'Either domain or id must be provided' }, 400);
+  }
+
+  console.log(`[Analytics] Received request for ${domain ? `domain: ${domain}` : `id: ${id}`}`);
 
   if (!apiKey) {
     console.error('[Analytics] OpenSincera API Key is missing');
     return c.json({ error: 'OpenSincera API Key is not configured' }, 500);
   }
 
-  const cacheKey = `analytics:${domain}`;
+  const cacheKey = domain ? `analytics:domain:${domain}` : `analytics:id:${id}`;
   const cached = analyticsCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < 3600 * 1000) {
-    // 1 hour cache
-    console.log(`[Analytics] Serving from cache: ${domain}`);
+    console.log(`[Analytics] Serving from cache: ${cacheKey}`);
     return c.json(cached.data, 200);
   }
 
-  const url = `https://open.sincera.io/api/publishers?domain=${domain}`;
+  // Construct URL based on available parameter
+  let url = 'https://open.sincera.io/api/publishers';
+  if (id) {
+    url += `?id=${id}`;
+  } else {
+    url += `?domain=${domain}`;
+  }
+
   console.log(`[Analytics] Fetching from: ${url}`);
 
   const fetchWithRetry = async (url: string, retries: number = 2, timeout: number = 5000) => {
@@ -151,8 +166,8 @@ app.openapi(getAnalyticsRoute, async (c) => {
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.warn(`[Analytics] Domain not found: ${domain}`);
-        return c.json({ error: 'Domain not found in OpenSincera database' }, 404);
+        console.warn(`[Analytics] Not found: ${domain || id}`);
+        return c.json({ error: 'Publisher not found in OpenSincera database' }, 404);
       }
       const errorText = await response.text();
       console.error(`[Analytics] OpenSincera API Error: ${response.status} - ${errorText}`);
@@ -164,7 +179,7 @@ app.openapi(getAnalyticsRoute, async (c) => {
 
     // Map OpenSincera response to our schema
     const result = {
-      domain: data.domain || domain,
+      domain: data.domain || domain || '',
       name: data.name,
       status: data.status,
       pub_description: data.pub_description,
@@ -185,6 +200,7 @@ app.openapi(getAnalyticsRoute, async (c) => {
       reseller_count: data.reseller_count,
       id_absorption_rate: data.id_absorption_rate,
       updated_at: data.updated_at || new Date().toISOString(),
+      similar_publishers: data.similar_publishers?.content || [],
     };
 
     // Update Cache
