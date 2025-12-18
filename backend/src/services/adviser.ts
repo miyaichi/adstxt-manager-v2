@@ -1,9 +1,5 @@
-
-import { getGeminiModel } from "../lib/gemini";
-import {
-  getFieldDescription
-} from "../lib/metadata-descriptions";
-
+import { getGeminiModel } from '../lib/gemini';
+import { getFieldDescription } from '../lib/metadata-descriptions';
 
 interface PublisherMetrics {
   name: string;
@@ -24,12 +20,12 @@ export class AdviserService {
   static async generateReport(
     target: PublisherMetrics,
     benchmark: PublisherMetrics,
-    language?: string // Optional, defaults to "ja" internally if undefined/null or handled below
+    language?: string, // Optional, defaults to "ja" internally if undefined/null or handled below
   ): Promise<string> {
     const model = getGeminiModel();
 
     // Ensure language is either 'en' or 'ja'
-    const lang = (language === "en") ? "en" : "ja";
+    const lang = language === 'en' ? 'en' : 'ja';
     const prompt = this.buildPrompt(target, benchmark, lang);
 
     try {
@@ -37,19 +33,15 @@ export class AdviserService {
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error("Error generating advisory report:", error);
-      throw new Error("Failed to generate report from Gemini.");
+      console.error('Error generating advisory report:', error);
+      throw new Error('Failed to generate report from Gemini.');
     }
   }
 
-  private static buildPrompt(
-    target: PublisherMetrics,
-    benchmark: PublisherMetrics,
-    language: string
-  ): string {
+  private static buildPrompt(target: PublisherMetrics, benchmark: PublisherMetrics, language: string): string {
     const definitions = this.getIndicatorDefinitions(language);
 
-    if (language === "en") {
+    if (language === 'en') {
       return `
 ## Role Definition
 You are an expert in programmatic advertising monetization and web performance optimization, acting as a supportive partner for publisher success.
@@ -165,24 +157,24 @@ ${definitions}
 
   private static getIndicatorDefinitions(language: string): string {
     const keyMapping: Record<string, string> = {
-      avg_ads_to_content_ratio: "avgAdsToContentRatio",
-      avg_page_weight: "avgPageWeight",
-      avg_ad_refresh: "avgAdRefresh",
-      reseller_count: "resellerCount",
-      id_absorption_rate: "idAbsorptionRate",
-      avg_cpu: "avgCpu",
-      avg_ads_in_view: "avgAdsInView",
-      total_unique_gpids: "totalUniqueGpids",
-      total_supply_paths: "totalSupplyPaths",
+      avg_ads_to_content_ratio: 'avgAdsToContentRatio',
+      avg_page_weight: 'avgPageWeight',
+      avg_ad_refresh: 'avgAdRefresh',
+      reseller_count: 'resellerCount',
+      id_absorption_rate: 'idAbsorptionRate',
+      avg_cpu: 'avgCpu',
+      avg_ads_in_view: 'avgAdsInView',
+      total_unique_gpids: 'totalUniqueGpids',
+      total_supply_paths: 'totalSupplyPaths',
     };
 
-    const validLang = language === "en" ? "en" : "ja";
+    const validLang = language === 'en' ? 'en' : 'ja';
 
     return Object.entries(keyMapping)
       .map(([snakeKey, camelKey]) => {
         const description = getFieldDescription(camelKey, validLang);
         return `- ${snakeKey}: ${description}`;
       })
-      .join("\n");
+      .join('\n');
   }
 }

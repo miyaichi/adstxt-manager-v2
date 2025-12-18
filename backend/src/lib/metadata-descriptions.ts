@@ -157,10 +157,7 @@ export function getVerificationDescription(status: string, language: 'en' | 'ja'
 /**
  * Format publisher metadata with descriptions
  */
-export function formatPublisherWithDescriptions(
-  publisher: any,
-  language: 'en' | 'ja' = 'en'
-): string {
+export function formatPublisherWithDescriptions(publisher: any, language: 'en' | 'ja' = 'en'): string {
   const lines: string[] = [];
 
   lines.push(`# ${publisher.publisherName || 'Unknown Publisher'}`);

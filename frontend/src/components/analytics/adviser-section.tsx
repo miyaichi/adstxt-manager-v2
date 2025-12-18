@@ -191,7 +191,9 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
                 ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 space-y-2" {...props} />,
                 li: ({ node, ...props }) => <li className="text-gray-700" {...props} />,
                 strong: ({ node, ...props }) => <strong className="font-semibold text-purple-900" {...props} />,
-                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-purple-300 pl-4 italic text-gray-600 my-4" {...props} />
+                blockquote: ({ node, ...props }) => (
+                  <blockquote className="border-l-4 border-purple-300 pl-4 italic text-gray-600 my-4" {...props} />
+                )
               }}
             >
               {report}

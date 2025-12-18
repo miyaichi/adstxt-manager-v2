@@ -14,14 +14,14 @@ export async function GET(request: Request) {
     // Pass through status code
     // Pass through status code
     if (!res.ok) {
-      const contentType = res.headers.get("content-type");
+      const contentType = res.headers.get("content-type")
       if (contentType && contentType.includes("application/json")) {
-        const errorData = await res.json();
-        return NextResponse.json(errorData, { status: res.status });
+        const errorData = await res.json()
+        return NextResponse.json(errorData, { status: res.status })
       } else {
-        const errorText = await res.text();
-        console.error(`[Proxy] Backend error: ${res.status} - ${errorText}`);
-        return NextResponse.json({ error: `Upstream error: ${res.status}`, details: errorText }, { status: res.status });
+        const errorText = await res.text()
+        console.error(`[Proxy] Backend error: ${res.status} - ${errorText}`)
+        return NextResponse.json({ error: `Upstream error: ${res.status}`, details: errorText }, { status: res.status })
       }
     }
 

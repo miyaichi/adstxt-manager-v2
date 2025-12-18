@@ -52,11 +52,14 @@ app.use(
 // Global Error Handler
 app.onError((err, c) => {
   console.error('[Uncaught Error]', err);
-  return c.json({
-    error: 'Internal Server Error',
-    message: err.message,
-    stack: err.stack,
-  }, 500);
+  return c.json(
+    {
+      error: 'Internal Server Error',
+      message: err.message,
+      stack: err.stack,
+    },
+    500,
+  );
 });
 
 // Logger middleware
