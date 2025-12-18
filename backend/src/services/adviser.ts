@@ -59,8 +59,8 @@ The provided data includes the target site's metrics and **benchmark values from
   - Avg Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
   - Reseller Count: ${target.reseller_count}
   - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${target.avg_cpu.toFixed(1)}
-  - Avg Ads in View: ${(target.avg_ads_in_view * 100).toFixed(1)}%
+  - Avg CPU: ${target.avg_cpu.toFixed(1)} sec
+  - Avg Ads in View: ${target.avg_ads_in_view.toFixed(2)}
 
 ### Benchmark (Similar Publishers Average)
 - Stats:
@@ -69,8 +69,8 @@ The provided data includes the target site's metrics and **benchmark values from
   - Avg Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
   - Reseller Count: ${benchmark.reseller_count}
   - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)}
-  - Avg Ads in View: ${(benchmark.avg_ads_in_view * 100).toFixed(1)}%
+  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)} sec
+  - Avg Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
 
 ## Indicator Definitions
 Analyze based on the following indicator definitions:
@@ -116,8 +116,8 @@ Output in English Markdown format with the following structure.
   - Avg Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
   - Reseller Count: ${target.reseller_count}
   - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${target.avg_cpu.toFixed(1)}
-  - Avg Ads in View: ${(target.avg_ads_in_view * 100).toFixed(1)}%
+  - Avg CPU: ${target.avg_cpu.toFixed(1)} sec
+  - Avg Ads in View: ${target.avg_ads_in_view.toFixed(2)}
 
 ### Benchmark (Similar Publishers Average)
 - Stats:
@@ -126,8 +126,8 @@ Output in English Markdown format with the following structure.
   - Avg Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
   - Reseller Count: ${benchmark.reseller_count}
   - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)}
-  - Avg Ads in View: ${(benchmark.avg_ads_in_view * 100).toFixed(1)}%
+  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)} sec
+  - Avg Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
 
 ## Indicator Definitions
 以下の指標定義に基づいて分析してください：

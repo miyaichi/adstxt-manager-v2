@@ -50,7 +50,7 @@ const fetcher = async (url: string) => {
       try {
         const inner = JSON.parse(msg)
         if (inner.error) msg = inner.error
-      } catch {}
+      } catch { }
 
       if (res.status === 404) {
         throw new Error("Domain not found")
@@ -255,7 +255,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.avg_ads_in_view ? `${Math.round(data.avg_ads_in_view * 100)}%` : "N/A"}
+                      {data.avg_ads_in_view ? data.avg_ads_in_view.toFixed(2) : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgAdsInView")}</p>
                   </CardContent>
@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{data.avg_cpu ? `${Math.round(data.avg_cpu)}%` : "N/A"}</div>
+                    <div className="text-3xl font-bold">{data.avg_cpu ? `${data.avg_cpu.toFixed(1)}s` : "N/A"}</div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgCpuUsage")}</p>
                   </CardContent>
                 </Card>
@@ -320,7 +320,8 @@ export default function AnalyticsPage() {
             </div>
           ) : null}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }

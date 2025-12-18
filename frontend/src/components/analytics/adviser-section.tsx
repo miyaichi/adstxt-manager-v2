@@ -43,39 +43,76 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
       if (similarIds.length > 0) {
         // Limit to top 3 similar publishers to avoid load/rate limits
         const targetIds = similarIds.slice(0, 3)
+        // Use local proxy for fetching analytics data
+        // Note: We are fetching each one sequentially or parallel
+        // Since we are in frontend, we use client fetch.
 
-        // We need to fetch details for these IDs.
-        // Note: The /api/proxy/analytics endpoint currently takes ?domain=
-        // We might need to handle fetching by ID if the proxy allows it, or simply use the direct endpoint if feasible.
-        // However, looking at backend/src/api/analytics.ts, it only accepts 'domain' query param and calls open.sincera.io/api/publishers?domain=...
-        // OpenSincera API supports ?id=... as seen in user request.
-        // But our proxy only accepts `domain`.
-        // WORKAROUND: For this prototype, if we cannot easily fetch by ID via our proxy,
-        // we might have to skip real benchmarking or update the proxy.
-        //
-        // Let's assume for prototype we just use "Default Industry Benchmark" if we can't fetch similar peers easily.
-        // Actually, let's try to update the proxy to accept ID, or just use hardcoded Fallback for now to ensure "Analyze" works.
-        // Since updating Proxy is another step, let's proceed with a Mock/Fallback benchmark or if possible, fetch by domain if we had domains.
-        // But we only have IDs.
+        try {
+          const fetchPromises = targetIds.map((id) =>
+            fetch(`/api/proxy/analytics?id=${id}`)
+              .then((res) => {
+                if (!res.ok) return null
+                return res.json()
+              })
+              .catch(() => null)
+          )
 
-        // Wait! The User Request showed usage of `curl ...?id=67`.
-        // Our backend proxy `api/analytics.ts` explicitly expects `domain` query param validation: `domain: z.string()`.
-        // So we cannot use `?id=` with current backend.
+          const results = await Promise.all(fetchPromises)
+          const validResults = results.filter((r) => r !== null)
 
-        // FALLBACK STRATEGY: Use a static 'Industry Standard' benchmark for now.
-        // This is safer for stability than trying to chain 5 API calls that might fail.
-        console.log("Benchmarks from similar IDs not fully implemented in proxy. Using Industry Standards.")
+          if (validResults.length > 0) {
+            // Calculate averages
+            const sum = validResults.reduce(
+              (acc, curr) => ({
+                avg_ads_to_content_ratio: acc.avg_ads_to_content_ratio + (curr.avg_ads_to_content_ratio || 0),
+                avg_page_weight: acc.avg_page_weight + (curr.avg_page_weight || 0),
+                avg_ad_refresh: acc.avg_ad_refresh + (curr.avg_ad_refresh || 0),
+                reseller_count: acc.reseller_count + (curr.reseller_count || 0),
+                id_absorption_rate: acc.id_absorption_rate + (curr.direct_ratio || 0), // Note: direct_ratio maps to id_absorption_rate in our schema somewhat
+                avg_cpu: acc.avg_cpu + (curr.avg_cpu || 0),
+                avg_ads_in_view: acc.avg_ads_in_view + (curr.avg_ads_in_view || 0)
+              }),
+              {
+                avg_ads_to_content_ratio: 0,
+                avg_page_weight: 0,
+                avg_ad_refresh: 0,
+                reseller_count: 0,
+                id_absorption_rate: 0,
+                avg_cpu: 0,
+                avg_ads_in_view: 0
+              }
+            )
+
+            const count = validResults.length
+            benchmarkData = {
+              avg_ads_to_content_ratio: sum.avg_ads_to_content_ratio / count,
+              avg_page_weight: sum.avg_page_weight / count,
+              avg_ad_refresh: sum.avg_ad_refresh / count,
+              reseller_count: Math.round(sum.reseller_count / count),
+              id_absorption_rate: sum.id_absorption_rate / count,
+              avg_cpu: sum.avg_cpu / count,
+              avg_ads_in_view: sum.avg_ads_in_view / count
+            }
+            console.log("Calculated benchmarks from", count, "similar publishers")
+          }
+        } catch (e) {
+          console.error("Failed to fetch similar publishers", e)
+          // Fallback handled below
+        }
       }
 
-      // Hardcoded Industry Benchmark (as a fallback/standard)
-      benchmarkData = {
-        avg_ads_to_content_ratio: 0.25, // 25%
-        avg_page_weight: 2.5, // 2.5MB
-        avg_ad_refresh: 30.0, // 30s
-        reseller_count: 50,
-        id_absorption_rate: 0.6, // 60%
-        avg_cpu: 10.0, // 10s
-        avg_ads_in_view: 0.7 // 70%
+      if (!benchmarkData) {
+        // Hardcoded Industry Benchmark (fallback)
+        console.log("Using fallback industry benchmarks")
+        benchmarkData = {
+          avg_ads_to_content_ratio: 0.25, // 25%
+          avg_page_weight: 2.5, // 2.5MB
+          avg_ad_refresh: 30.0, // 30s
+          reseller_count: 50,
+          id_absorption_rate: 0.6, // 60%
+          avg_cpu: 10.0, // 10s
+          avg_ads_in_view: 0.7 // 70%
+        }
       }
 
       // 2. Call Adviser API
@@ -94,7 +131,7 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
           avg_ads_in_view: analyticsData.avg_ads_in_view || 0
         },
         benchmark: {
-          name: "Industry Benchmark (Top 10%)",
+          name: "Similar Publishers Average",
           domain: "benchmark",
           ...benchmarkData
         },
