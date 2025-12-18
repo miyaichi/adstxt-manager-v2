@@ -92,10 +92,11 @@ app.openapi(validateRoute, async (c) => {
     // If it's a fetch error, 500 is appropriate (or 502/504)
     // If it's logic error, maybe 400? For now keep 500 as catch-all for failures.
     const message = e.message || 'Unknown error';
+    console.error(e);
     if (message.startsWith('Invalid')) {
-      return c.json({ error: message }, 400);
+      return c.json({ error: message, stack: e.stack }, 400);
     }
-    return c.json({ error: message }, 500);
+    return c.json({ error: message, stack: e.stack }, 500);
   }
 });
 
