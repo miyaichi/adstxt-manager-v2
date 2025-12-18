@@ -13,15 +13,17 @@ dotenv.config();
 
 // Critical Environment Variable Check
 const requiredEnvVars = ['DATABASE_URL'];
-if (process.env.NODE_ENV === 'production') {
-  requiredEnvVars.push('OPENSINCERA_API_KEY');
-}
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`ERROR: Required environment variable ${envVar} is not set`);
     process.exit(1);
   }
+}
+
+// Warning for OPENSINCERA_API_KEY (Non-critical but recommended for analytics)
+if (process.env.NODE_ENV === 'production' && !process.env.OPENSINCERA_API_KEY) {
+  console.warn('WARNING: OPENSINCERA_API_KEY is not set. Analytics features may not work.');
 }
 
 import { cors } from 'hono/cors';
@@ -32,7 +34,13 @@ const app = new OpenAPIHono();
 app.use(
   '/*',
   cors({
-    origin: process.env.NODE_ENV === 'production' ? (process.env.FRONTEND_URL as string) : '*',
+    origin: (origin) => {
+      // In production, strictly match FRONTEND_URL if set, otherwise allow all (or allow none if preferred security-wise)
+      if (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL) {
+        return process.env.FRONTEND_URL === origin ? origin : null;
+      }
+      return origin; // Allow all in dev or if config missing (or return origin to reflect back)
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposeHeaders: ['Content-Length'],
@@ -40,6 +48,16 @@ app.use(
     credentials: true,
   }),
 );
+
+// Global Error Handler
+app.onError((err, c) => {
+  console.error('[Uncaught Error]', err);
+  return c.json({
+    error: 'Internal Server Error',
+    message: err.message,
+    stack: err.stack,
+  }, 500);
+});
 
 // Logger middleware
 app.use('*', async (c, next) => {
