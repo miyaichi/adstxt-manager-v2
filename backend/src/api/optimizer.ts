@@ -2,6 +2,7 @@ import { OpenAPIHono, z } from '@hono/zod-openapi';
 import { zValidator } from '@hono/zod-validator';
 import { query } from '../db/client';
 import { parseAdsTxtContent } from '../lib/adstxt/validator';
+import client from '../lib/http';
 
 const optimizerApp = new OpenAPIHono();
 
@@ -315,18 +316,12 @@ optimizerApp.post('/fetch', zValidator('json', fetchSchema), async (c) => {
     const url = `https://${domain}/${fileType}`;
     // Simple fetch implementation
     // In production, might need retry logic, user-agent rotation, proxy, etc.
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'AdsTxtManager/2.0 (Compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-      },
-      signal: AbortSignal.timeout(10000), // 10s timeout
+    // Use configured client to handle legacy SSL (docomo.ne.jp) and redirects
+    const response = await client.get(url, {
+      timeout: 10000,
     });
 
-    if (!response.ok) {
-      return c.json({ error: `Failed to fetch from ${url}: ${response.status} ${response.statusText}` }, 502);
-    }
-
-    const text = await response.text();
+    const text = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
     return c.json({ content: text });
   } catch (error: any) {
     console.error(`Error fetching ${fileType} from ${domain}:`, error);

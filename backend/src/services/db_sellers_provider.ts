@@ -88,10 +88,7 @@ export class DbSellersProvider implements SellersJsonProvider {
     // Check if we have actual seller data in the catalog.
     // Checking raw_sellers_files is insufficient because processing might have failed or yielded 0 records,
     // leaving us with a "processed" file but no data to validate against.
-    const res = await query(
-      `SELECT 1 FROM sellers_catalog WHERE domain = $1 LIMIT 1`,
-      [domain.toLowerCase()],
-    );
+    const res = await query(`SELECT 1 FROM sellers_catalog WHERE domain = $1 LIMIT 1`, [domain.toLowerCase()]);
     return res.rowCount !== null && res.rowCount > 0;
   }
 

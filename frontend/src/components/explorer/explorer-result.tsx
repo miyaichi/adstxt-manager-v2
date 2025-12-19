@@ -47,15 +47,17 @@ export function ExplorerResult({ domain, type }: Props) {
   )
 
   // Filter records
-  const filteredRecords = data?.records.filter((r) => {
-    if (!filter) return true
-    const term = filter.toLowerCase()
-    return (
-      (r.domain?.toLowerCase().includes(term) ?? false) ||
-      (r.account_id?.toLowerCase().includes(term) ?? false) ||
-      (r.relationship?.toLowerCase().includes(term) ?? false)
-    )
-  })
+  const filteredRecords = data?.records
+    .filter((r) => {
+      if (!filter) return true
+      const term = filter.toLowerCase()
+      return (
+        (r.domain?.toLowerCase().includes(term) ?? false) ||
+        (r.account_id?.toLowerCase().includes(term) ?? false) ||
+        (r.relationship?.toLowerCase().includes(term) ?? false)
+      )
+    })
+    .sort((a, b) => a.line_number - b.line_number)
 
   // Download functionality
   const handleDownload = () => {

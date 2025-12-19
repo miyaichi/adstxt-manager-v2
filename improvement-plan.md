@@ -132,3 +132,9 @@
         -   Made auto-fetch asynchronous to prevent 504 Gateway Timeouts during validation.
         -   **Action Required**: Configure Cloud Run with `--no-cpu-throttling` and `2GiB` memory to ensure background fetch completion.
     -   *Why*: Users encountered timeout errors and missing data for Google on the production environment.
+    -   [x] **Fix Legacy SSL Support (docomo.ne.jp)**:
+        -   Updated `Optimizer` to use the shared `axios` client with relaxed SSL options (`SSL_OP_LEGACY_SERVER_CONNECT`).
+        -   *Why*: `fetch` in Node 18+ failed for servers with legacy SSL renegotiation (e.g. `docomo.ne.jp`), causing 500 errors in Optimizer while Validator worked.
+    -   [x] **Numerical Sorting for Line Numbers**:
+        -   Updated Validator and Data Explorer to sort results numerically by Line number (1, 2, 10) instead of lexicographically (1, 10, 2).
+        -   *Why*: Required for easier auditing of large files.
