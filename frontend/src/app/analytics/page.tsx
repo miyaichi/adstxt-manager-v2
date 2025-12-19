@@ -50,7 +50,7 @@ const fetcher = async (url: string) => {
       try {
         const inner = JSON.parse(msg)
         if (inner.error) msg = inner.error
-      } catch { }
+      } catch {}
 
       if (res.status === 404) {
         throw new Error("Domain not found")
@@ -320,8 +320,7 @@ export default function AnalyticsPage() {
             </div>
           ) : null}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   )
 }

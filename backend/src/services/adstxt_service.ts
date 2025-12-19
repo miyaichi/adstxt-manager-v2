@@ -4,6 +4,8 @@ import client from '../lib/http';
 import { AdsTxtScanner } from './adstxt_scanner';
 import { DbSellersProvider } from './db_sellers_provider';
 
+import { SellersService } from './sellers_service';
+
 export interface ValidationRecord {
   line_number: number;
   raw_line: string;
@@ -47,10 +49,12 @@ export interface ValidationResult {
 export class AdsTxtService {
   private scanner: AdsTxtScanner;
   private sellersProvider: DbSellersProvider;
+  private sellersService: SellersService;
 
   constructor() {
     this.scanner = new AdsTxtScanner();
     this.sellersProvider = new DbSellersProvider();
+    this.sellersService = new SellersService();
   }
 
   async validateDomain(domain: string, type: string = 'ads.txt', save: boolean = false): Promise<ValidationResult> {
@@ -102,6 +106,28 @@ export class AdsTxtService {
 
     // 3. Parse & Check
     const parsedEntries = parseAdsTxtContent(content, domain);
+
+    // Auto-fetch missing sellers.json to ensure validation accuracy
+    const systemDomains = new Set<string>();
+    parsedEntries.forEach((entry: any) => {
+      if (entry.domain) {
+        systemDomains.add(entry.domain.toLowerCase());
+      }
+    });
+
+    await Promise.all(
+      Array.from(systemDomains).map(async (sysDomain) => {
+        try {
+          const has = await this.sellersProvider.hasSellerJson(sysDomain);
+          if (!has) {
+            await this.sellersService.fetchAndProcessSellers(sysDomain, true);
+          }
+        } catch (e) {
+          console.warn(`Failed to auto-fetch sellers.json for ${sysDomain}:`, e);
+        }
+      }),
+    );
+
     const validatedEntries = await crossCheckAdsTxtRecords(domain, parsedEntries, null, this.sellersProvider);
 
     // 3.5. Optimize: Batch fetch seller info for all records

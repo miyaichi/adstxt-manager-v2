@@ -145,6 +145,9 @@ export class StreamImporter {
           ingestStream,
         );
 
+        // Mark as processed
+        await client.query('UPDATE raw_sellers_files SET processed_at = NOW() WHERE id = $1', [rawFileId]);
+
         await client.query('COMMIT');
         console.log(`Import completed for ${options.domain}`);
       } catch (err: any) {
