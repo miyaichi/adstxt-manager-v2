@@ -123,6 +123,7 @@ gcloud run deploy adstxt-frontend \
     --allow-unauthenticated
 ```
 
+
 ## 6. DB初期化について (補足)
 
 Cloud SQLへの初回テーブル作成は、Cloud SQL Auth Proxyなどを使ってローカルから接続して行うのが最も手軽です。
@@ -134,3 +135,29 @@ Cloud SQLへの初回テーブル作成は、Cloud SQL Auth Proxyなどを使っ
 # 別のターミナルで初期SQLを実行
 psql "host=127.0.0.1 port=5434 sslmode=disable dbname=adstxt_v2 user=postgres password=your-db-password" -f backend/src/db/init.sql
 ```
+
+## 7. 定期実行ジョブ (Cloud Scheduler) の設定
+
+Cloud Run はリクエストがない時にアイドル状態となりバックグラウンド処理（node-cron等）が停止するため、Cloud Scheduler を使用して定期的にスキャン処理をトリガーします。
+
+### バックグラウンドスキャンジョブの作成 (15分間隔)
+
+```bash
+# Cloud Scheduler APIの有効化
+gcloud services enable cloudscheduler.googleapis.com
+
+# Backend Service URLの取得 (未設定の場合)
+export BACKEND_URL=$(gcloud run services describe adstxt-backend --format 'value(status.url)')
+
+# ジョブの作成
+gcloud scheduler jobs create http adstxt-scan-job \
+  --location=$REGION \
+  --schedule "*/15 * * * *" \
+  --uri "${BACKEND_URL}/api/jobs/trigger" \
+  --http-method POST \
+  --time-zone "Asia/Tokyo" \
+  --description "Trigger ads.txt background scan and sellers.json sync"
+```
+
+この設定により、Cloud Run インスタンスの状態に関わらず、確実に15分ごとにバックグラウンド処理が実行されます。
+

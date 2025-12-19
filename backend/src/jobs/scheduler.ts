@@ -25,32 +25,37 @@ const SPECIAL_DOMAINS: Record<string, string> = {
   'advertising.com': 'https://dragon-advertising.com/sellers.json',
 };
 
+export async function runScheduledJobs() {
+  if (isJobRunning) {
+    console.log('Job is already running, skipping...');
+    return;
+  }
+  isJobRunning = true;
+  console.log('Starting scheduled jobs...');
+
+  try {
+    // 1. Monitored Ads.txt Scans
+    await processMonitoredDomains();
+
+    // 2. Sync Sellers.json
+    await processMissingSellers();
+  } catch (e) {
+    console.error('Job failed:', e);
+  } finally {
+    isJobRunning = false;
+    console.log('Scheduled jobs finished');
+  }
+}
+
 export function setupCronJobs() {
   console.log('Setting up cron jobs...');
 
   // Production: Every 15 minutes, Development: Every 1 minute
+  // Note: In Cloud Run, this cron might not run reliably. We recommend using Cloud Scheduler triggering /api/jobs/scan
   const schedule = process.env.NODE_ENV === 'production' ? '*/15 * * * *' : '*/1 * * * *';
 
   cron.schedule(schedule, async () => {
-    if (isJobRunning) {
-      console.log('Job is already running, skipping...');
-      return;
-    }
-    isJobRunning = true;
-    console.log('Starting scheduled jobs...');
-
-    try {
-      // 1. Monitored Ads.txt Scans
-      await processMonitoredDomains();
-
-      // 2. Sync Sellers.json
-      await processMissingSellers();
-    } catch (e) {
-      console.error('Job failed:', e);
-    } finally {
-      isJobRunning = false;
-      console.log('Scheduled jobs finished');
-    }
+    await runScheduledJobs();
   });
 
   // 毎日深夜 3:00 にクリーンアップを実行
@@ -64,7 +69,7 @@ export function setupCronJobs() {
 /**
  * モニタリング対象のドメインのads.txtをスキャンする
  */
-async function processMonitoredDomains() {
+export async function processMonitoredDomains() {
   console.log('Checking for monitored domains due for scan...');
   const dueDomains = await monitoredDomainsService.getDueDomains();
   console.log(`Found ${dueDomains.length} domains due for ads.txt scan.`);
@@ -110,7 +115,7 @@ async function processMonitoredDomains() {
 /**
  * Ads.txtの履歴から、まだ取り込んでいないSellers.jsonドメインを探して取り込む
  */
-async function processMissingSellers() {
+export async function processMissingSellers() {
   // 1. ads.txtの履歴からユニークなドメインリスト（Relationship=DIRECT/RESELLER の system domain）を抽出
   //    本来はバリデーション済みの結果を使うべきだが、ここでは簡易的に ads_txt_scans の最新コンテンツをパースする
 
