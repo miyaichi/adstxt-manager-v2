@@ -23,21 +23,43 @@ export class StreamImporter {
       // 2. HTTP Stream取得
       // 2. HTTP Stream取得
       let response;
-      try {
-        response = await httpClient({
-          method: 'get',
-          url: options.url,
-          responseType: 'stream',
-          validateStatus: () => true, // Allow all status codes to handle 404/500 manually
-          'axios-retry': { retries: 0 }, // Disable retry for streams to avoid compatibility issues
-        } as any);
-      } catch (netErr: any) {
-        console.warn(`Network error fetching sellers.json for ${options.domain}:`, netErr.message);
-        // Create a record with status 0 (Network Error) to indicate attempt failed
-        // This helps diagnostics (vs just appearing as 'not found')
-        await this.createRawFileRecord(client, options.domain, 0, null);
-        return;
+      let usedUrl = options.url;
+      const maxRetries = 1;
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          response = await httpClient({
+            method: 'get',
+            url: usedUrl,
+            responseType: 'stream',
+            validateStatus: () => true,
+            'axios-retry': { retries: 0 },
+          } as any);
+
+          if (response.status === 404 && !options.domain.startsWith('www.') && attempt === 0) {
+            console.warn(`404 for ${usedUrl}, retrying with www.${options.domain}`);
+            usedUrl = `https://www.${options.domain}/sellers.json`;
+            continue;
+          }
+
+          if (response.status === 429 && attempt === 0) {
+            console.warn(`429 for ${usedUrl}, waiting 2s and retrying...`);
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
+          }
+
+          break;
+        } catch (netErr: any) {
+          if (attempt === maxRetries) {
+            console.warn(`Network error fetching sellers.json for ${options.domain}:`, netErr.message);
+            await this.createRawFileRecord(client, options.domain, 0, null);
+            return;
+          }
+          await new Promise(r => setTimeout(r, 1000));
+        }
       }
+
+      if (!response) return;
 
       const httpStatus = response.status;
       const etag = response.headers['etag'] || null;
