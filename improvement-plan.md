@@ -111,3 +111,18 @@
 -   **Optimizer Step Explanations**:
     -   Add links to detailed explanation pages for each optimization step (Risk/Benefit analysis).
     -   *Why*: builds trust in the optimization logic.
+
+### 4. Bug Fixes (Critical)
+-   **Validator Sellers.json Lookups**:
+    -   [x] Auto-fetch `sellers.json` if missing during `ads.txt` validation.
+    -   *Why*: Validator was reporting "sellers.json not found" for existing domains because they weren't in the local database.
+-   **Validator Seller Domain Mapping**:
+    -   [x] Fix `DbSellersProvider` to select `seller_domain` correctly instead of source `domain`.
+    -   *Why*: Caused "Domain Mismatch" errors because the validator was comparing publisher domain against the ad system domain (e.g. ad-generation.jp) instead of the seller's domain (e.g. asahi.com).
+-   **Validator User-Agent Update**:
+    -   [x] Updated `User-Agent` to Chrome 131.
+    -   *Why*: `media.net` and others may block requests from older or non-browser User-Agents.
+-   **Validator Robust Import**:
+    -   [x] Implemented transactional tracking (`processed_at`) for `sellers.json` imports.
+    -   [x] Fixed `DbSellersProvider` to ignore failed (zombie) imports and fall back to the last successful snapshot.
+    -   *Why*: `google.com` validation was failing because a recent large import failed mid-stream, leaving an empty record that shadowed older valid data.

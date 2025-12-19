@@ -12,12 +12,14 @@ export class DbSellersProvider implements SellersJsonProvider {
     const domainLower = domain.toLowerCase();
 
     // Check if we have data for this domain (get the latest snapshot ID)
+    // Only use fully processed files (processed_at IS NOT NULL)
     const lastFetchRes = await query(
-      `SELECT id, fetched_at FROM raw_sellers_files WHERE domain = $1 ORDER BY fetched_at DESC LIMIT 1`,
+      `SELECT id, fetched_at FROM raw_sellers_files WHERE domain = $1 AND processed_at IS NOT NULL ORDER BY fetched_at DESC LIMIT 1`,
       [domainLower],
     );
 
     if (lastFetchRes.rows.length === 0) {
+      // Logic same as before
       return {
         domain,
         requested_count: sellerIds.length,
@@ -37,8 +39,9 @@ export class DbSellersProvider implements SellersJsonProvider {
     const fetchedAt = lastFetchRes.rows[0].fetched_at;
 
     // Fetch sellers matching the IDs from the LATEST snapshot
+    // FIX: Select 'seller_domain' as the seller's domain (e.g. asahi.com), NOT 'domain' which is the source (e.g. ad-generation.jp)
     const sellersRes = await query(
-      `SELECT seller_id, name, seller_type, is_confidential, domain 
+      `SELECT seller_id, name, seller_type, is_confidential, seller_domain as domain 
          FROM sellers_catalog 
          WHERE raw_file_id = $1 AND seller_id = ANY($2)`,
       [rawFileId, sellerIds],
@@ -82,13 +85,17 @@ export class DbSellersProvider implements SellersJsonProvider {
   }
 
   async hasSellerJson(domain: string): Promise<boolean> {
-    const res = await query(`SELECT 1 FROM raw_sellers_files WHERE domain = $1 LIMIT 1`, [domain.toLowerCase()]);
+    // Only return true if we have a successful fetch (HTTP 200) AND it was fully processed
+    const res = await query(
+      `SELECT 1 FROM raw_sellers_files WHERE domain = $1 AND http_status = 200 AND processed_at IS NOT NULL LIMIT 1`,
+      [domain.toLowerCase()],
+    );
     return res.rowCount !== null && res.rowCount > 0;
   }
 
   async getCacheInfo(domain: string): Promise<CacheInfo> {
     const res = await query(
-      `SELECT fetched_at FROM raw_sellers_files WHERE domain = $1 ORDER BY fetched_at DESC LIMIT 1`,
+      `SELECT fetched_at, http_status, processed_at FROM raw_sellers_files WHERE domain = $1 ORDER BY fetched_at DESC LIMIT 1`,
       [domain.toLowerCase()],
     );
 
@@ -96,10 +103,13 @@ export class DbSellersProvider implements SellersJsonProvider {
       return { is_cached: false, status: 'error' };
     }
 
+    const row = res.rows[0];
+    const isSuccess = row.http_status === 200 && row.processed_at != null;
+
     return {
-      is_cached: true,
-      last_updated: res.rows[0].fetched_at,
-      status: 'success',
+      is_cached: isSuccess,
+      last_updated: row.fetched_at,
+      status: isSuccess ? 'success' : 'error',
     };
   }
 
