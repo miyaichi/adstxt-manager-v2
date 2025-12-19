@@ -85,9 +85,11 @@ export class DbSellersProvider implements SellersJsonProvider {
   }
 
   async hasSellerJson(domain: string): Promise<boolean> {
-    // Only return true if we have a successful fetch (HTTP 200) AND it was fully processed
+    // Check if we have actual seller data in the catalog.
+    // Checking raw_sellers_files is insufficient because processing might have failed or yielded 0 records,
+    // leaving us with a "processed" file but no data to validate against.
     const res = await query(
-      `SELECT 1 FROM raw_sellers_files WHERE domain = $1 AND http_status = 200 AND processed_at IS NOT NULL LIMIT 1`,
+      `SELECT 1 FROM sellers_catalog WHERE domain = $1 LIMIT 1`,
       [domain.toLowerCase()],
     );
     return res.rowCount !== null && res.rowCount > 0;
