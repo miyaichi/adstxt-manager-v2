@@ -1,5 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const JSONStream = require('JSONStream');
 import { PoolClient } from 'pg';
 import { from as copyFrom } from 'pg-copy-streams';
+import { Transform } from 'stream';
+import { pipeline } from 'stream/promises';
 import { pool } from '../db/client';
 import httpClient from '../lib/http';
 
@@ -16,7 +20,8 @@ export class StreamImporter {
     console.log(`Starting import for ${options.domain} from ${options.url}`);
 
     try {
-      // 1. Fetch Full Content (In-Memory)
+      // 2. HTTP Stream取得
+      // 2. HTTP Stream取得
       let response;
       let usedUrl = options.url;
       const maxRetries = 1;
@@ -26,7 +31,7 @@ export class StreamImporter {
           response = await httpClient({
             method: 'get',
             url: usedUrl,
-            responseType: 'arraybuffer',
+            responseType: 'stream',
             validateStatus: () => true,
             'axios-retry': { retries: 0 },
           } as any);
@@ -59,7 +64,7 @@ export class StreamImporter {
       const httpStatus = response.status;
       const etag = response.headers['etag'] || null;
 
-      // 2. Raw File Record
+      // 1. Raw File Record作成 (Save metadata even if failed)
       const rawFileId = await this.createRawFileRecord(
         client,
         options.domain,
@@ -69,41 +74,17 @@ export class StreamImporter {
 
       if (httpStatus >= 400) {
         console.warn(`Failed to fetch sellers.json for ${options.domain}. Status: ${httpStatus}`);
-        return;
+        return; // Stop processing, but record is saved to indicate attempt
       }
 
-      // 3. Parse JSON in Memory
-      let sellersData: any[] = [];
-      try {
-        const rawBody = response.data.toString('utf-8');
-        const json = JSON.parse(rawBody);
-
-        if (json.sellers && Array.isArray(json.sellers)) {
-          sellersData = json.sellers;
-        } else {
-          // Fallback: If root is array
-          if (Array.isArray(json)) sellersData = json;
-          else throw new Error('Invalid sellers.json structure: "sellers" array not found');
-        }
-
-        if (sellersData.length === 0) {
-          console.warn(`No sellers found in ${options.domain}`);
-        }
-      } catch (parseErr: any) {
-        console.error(`JSON Parse Error for ${options.domain}: ${parseErr.message}`);
-        await client.query('UPDATE raw_sellers_files SET http_status = $1, etag = $2 WHERE id = $3', [
-          998, // JSON Parse Error
-          `Parse Error: ${parseErr.message}`.substring(0, 255),
-          rawFileId,
-        ]);
-        return;
-      }
-
-      // 4. Bulk Insert (COPY)
+      // 3. Update Catalog safely
       try {
         await client.query('BEGIN');
+
+        // Delete existing entries for this domain to avoid constraints errors
         await client.query('DELETE FROM sellers_catalog WHERE domain = $1', [options.domain]);
 
+        // COPY Stream
         const ingestStream = client.query(
           copyFrom(`
             COPY sellers_catalog (
@@ -119,65 +100,89 @@ export class StreamImporter {
           `),
         );
 
+        // 4. Build pipeline
         const seenSellerIds = new Set<string>();
 
-        for (const seller of sellersData) {
-          try {
-            if (!seller) continue;
-
-            const sellerId = (seller.seller_id || '').toString().trim();
-            if (!sellerId) continue;
-
-            if (seenSellerIds.has(sellerId)) continue;
-            seenSellerIds.add(sellerId);
-
-            const sellerType = (seller.seller_type || 'PUBLISHER').toString().toUpperCase().trim();
-
-            let name = (seller.name || '').toString();
-            name = name.replace(/[\t\n\r\0]/g, ' ').trim();
-
-            let isConfidential = false;
-            if (seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1') {
-              isConfidential = true;
-            }
-
-            let sellerDomain = (seller.domain || '').toString().trim();
-            sellerDomain = sellerDomain.replace(/[\t\n\r\0]/g, '').trim();
-
-            let identifiers = null;
-            if (seller.identifiers && Array.isArray(seller.identifiers)) {
+        await pipeline(
+          response.data,
+          JSONStream.parse('sellers.*'),
+          new Transform({
+            objectMode: true,
+            transform(seller: any, encoding, callback) {
               try {
-                identifiers = JSON.stringify(seller.identifiers);
-                identifiers = identifiers.replace(/\\/g, '\\\\');
+                if (!seller) {
+                  callback();
+                  return;
+                }
+
+                // Robust sanitization
+                const sellerId = (seller.seller_id || '').toString().trim();
+                if (!sellerId) {
+                  // Skip invalid ID
+                  callback();
+                  return;
+                }
+
+                // Deduplication within the same file (same domain)
+                if (seenSellerIds.has(sellerId)) {
+                  // Skip duplicate
+                  callback();
+                  return;
+                }
+                seenSellerIds.add(sellerId);
+
+                const sellerType = (seller.seller_type || 'PUBLISHER').toString().toUpperCase().trim();
+
+                // Name sanitization: Remove tabs, newlines, null chars
+                let name = (seller.name || '').toString();
+                // Replace invalid characters for TSV
+                name = name.replace(/[\t\n\r\0]/g, ' ').trim();
+
+                // Confidential handling
+                let isConfidential = false;
+                if (seller.is_confidential === 1 || seller.is_confidential === true || seller.is_confidential === '1') {
+                  isConfidential = true;
+                }
+
+                // Seller Domain
+                let sellerDomain = (seller.domain || '').toString().trim();
+                sellerDomain = sellerDomain.replace(/[\t\n\r\0]/g, '').trim();
+
+                // Identifiers (JSON)
+                let identifiers = null;
+                if (seller.identifiers && Array.isArray(seller.identifiers)) {
+                  try {
+                    identifiers = JSON.stringify(seller.identifiers);
+                    // Escape backslashes for COPY TEXT format
+                    identifiers = identifiers.replace(/\\/g, '\\\\');
+                  } catch (e) {
+                    identifiers = null;
+                  }
+                }
+                const identifiersStr = identifiers ? identifiers : '\\N'; // \N for NULL in COPY
+
+                const row = `${sellerId}\t${options.domain}\t${sellerType}\t${name}\t${sellerDomain}\t${identifiersStr}\t${isConfidential}\t${rawFileId}\n`;
+                callback(null, row);
               } catch (e) {
-                identifiers = null;
+                // Skip malformed record but continue stream
+                callback();
               }
-            }
-            const identifiersStr = identifiers ? identifiers : '\\N';
+            },
+          }),
+          ingestStream,
+        );
 
-            const row = `${sellerId}\t${options.domain}\t${sellerType}\t${name}\t${sellerDomain}\t${identifiersStr}\t${isConfidential}\t${rawFileId}\n`;
-            ingestStream.write(row);
-          } catch (rErr) {
-            // Ignore bad row
-          }
-        }
-
-        ingestStream.end();
-
-        // Wait for stream to finish
-        await new Promise((resolve, reject) => {
-          ingestStream.on('finish', resolve);
-          ingestStream.on('error', reject);
-        });
-
+        // Mark as processed
         await client.query('UPDATE raw_sellers_files SET processed_at = NOW() WHERE id = $1', [rawFileId]);
+
         await client.query('COMMIT');
-        console.log(`Import completed for ${options.domain}. Processed ${sellersData.length} records.`);
+        console.log(`Import completed for ${options.domain}`);
       } catch (err: any) {
         await client.query('ROLLBACK');
         console.error(`Error importing ${options.domain}:`, err);
+        // Update raw record to indicate processing failure
         await client.query('UPDATE raw_sellers_files SET http_status = $1, etag = $2 WHERE id = $3', [
-          999, // Processing Error
+          999, // Custom status for processing failure
           `Error: ${err.message}`.substring(0, 255),
           rawFileId,
         ]);
