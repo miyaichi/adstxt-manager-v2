@@ -120,7 +120,10 @@ export class AdsTxtService {
         try {
           const has = await this.sellersProvider.hasSellerJson(sysDomain);
           if (!has) {
-            await this.sellersService.fetchAndProcessSellers(sysDomain, true);
+            // Fire and forget to avoid timeout on large files (e.g. Google)
+            this.sellersService.fetchAndProcessSellers(sysDomain, true).catch((err) => {
+              console.warn(`Background fetch failed for ${sysDomain}:`, err);
+            });
           }
         } catch (e) {
           console.warn(`Failed to auto-fetch sellers.json for ${sysDomain}:`, e);
