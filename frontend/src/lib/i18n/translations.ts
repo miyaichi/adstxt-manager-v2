@@ -240,89 +240,89 @@ export const translations = {
     invalidFormat: {
       title: { en: "Invalid Format", ja: "無効なフォーマット" },
       description: {
-        en: "The format of the Ads.txt entry is invalid and could not be parsed correctly.",
-        ja: "Ads.txtエントリのフォーマットが無効で、正しく解析できませんでした。"
+        en: "Invalid Format",
+        ja: "無効なフォーマット"
       }
     },
     missingFields: {
-      title: { en: "Missing Required Fields", ja: "必須フィールドの欠落" },
+      title: { en: "Missing Required Fields (Code: 11010)", ja: "必須フィールドの欠落（コード: 11010）" },
       description: {
-        en: "The ads.txt entry is missing the three required fields.",
-        ja: "ads.txtエントリに必要な3つのフィールドがありません。"
+        en: "Missing Required Fields (Code: 11010)",
+        ja: "必須フィールドの欠落（コード: 11010）"
       }
     },
     invalidRelationship: {
-      title: { en: "Invalid Relationship", ja: "無効な関係タイプ" },
+      title: { en: "Invalid Relationship (Code: 11020)", ja: "無効な関係タイプ（コード: 11020）" },
       description: {
-        en: "The third required field must contain either DIRECT or RESELLER.",
-        ja: "3番目の必須フィールドには「DIRECT」または「RESELLER」のいずれかが含まれている必要があります。"
+        en: "Invalid Relationship (Code: 11020)",
+        ja: "無効な関係タイプ（コード: 11020）"
       }
     },
     invalidDomain: {
-      title: { en: "Invalid Domain", ja: "無効なドメイン" },
+      title: { en: "Invalid Domain (Code: 11030)", ja: "無効なドメイン（コード: 11030）" },
       description: {
-        en: "The advertising system domain is not a valid domain.",
-        ja: "広告システムドメインが有効なドメインではありません。"
+        en: "Invalid Domain (Code: 11030)",
+        ja: "無効なドメイン（コード: 11030）"
       }
     },
     emptyAccountId: {
       title: { en: "Empty Account ID", ja: "空のアカウントID" },
-      description: { en: "The account ID field is empty.", ja: "アカウントIDフィールドが空です。" }
+      description: { en: "Empty Account ID", ja: "空のアカウントID" }
     },
     // ... Additional keys can be added here as needed
     noSellersJson: {
-      title: { en: "No Sellers.json File", ja: "sellers.jsonファイルがない" },
+      title: { en: "No Sellers.json File (Code: 12010, 13010)", ja: "Sellers.jsonファイルがない（コード: 12010, 13010）" },
       description: {
-        en: "No sellers.json file was found for the specified advertising system domain {{domain}}.",
-        ja: "指定された広告システムドメイン{{domain}}のsellers.jsonファイルが見つかりませんでした。"
+        en: "No Sellers.json File (Code: 12010, 13010)",
+        ja: "Sellers.jsonファイルがない（コード: 12010, 13010）"
       }
     },
     directAccountIdNotInSellersJson: {
-      title: { en: "DIRECT: Account ID Not in Sellers.json", ja: "DIRECT: アカウントIDがsellers.jsonにない" },
+      title: { en: "DIRECT: Account ID Not in Sellers.json (Code: 12020)", ja: "DIRECT: アカウントIDがSellers.jsonにない（コード: 12020）" },
       description: {
-        en: "Publisher account ID {{account_id}} not found in sellers.json for {{domain}}.",
-        ja: "パブリッシャーアカウントID {{account_id}} が {{domain}} のsellers.jsonに見つかりません。"
+        en: "DIRECT: Account ID Not in Sellers.json (Code: 12020)",
+        ja: "DIRECT: アカウントIDがSellers.jsonにない（コード: 12020）"
       }
     },
     resellerAccountIdNotInSellersJson: {
-      title: { en: "RESELLER: Account ID Not in Sellers.json", ja: "RESELLER: アカウントIDがsellers.jsonにない" },
+      title: { en: "RESELLER: Account ID Not in Sellers.json (Code: 13020)", ja: "RESELLER: アカウントIDがSellers.jsonにない（コード: 13020）" },
       description: {
-        en: "Reseller account ID {{account_id}} not found in sellers.json for {{domain}}.",
-        ja: "リセラーアカウントID {{account_id}} が {{domain}} のsellers.jsonに見つかりません。"
+        en: "RESELLER: Account ID Not in Sellers.json (Code: 13020)",
+        ja: "RESELLER: アカウントIDがSellers.jsonにない（コード: 13020）"
       }
     },
     domainMismatch: {
-      title: { en: "Domain Mismatch", ja: "ドメインの不一致" },
+      title: { en: "Domain Mismatch (Code: 12030, 13030)", ja: "ドメインの不一致（コード: 12030, 13030）" },
       description: {
-        en: "The sellers.json domain ({{seller_domain}}) doesn't match the OWNERDOMAIN/MANAGERDOMAIN or publisher domain ({{publisher_domain}}).",
-        ja: "sellers.jsonドメイン（{{seller_domain}}）がOWNERDOMAIN/MANAGERDOMAINまたはパブリッシャードメイン（{{publisher_domain}}）と一致しません。"
+        en: "Domain Mismatch (Code: 12030, 13030)",
+        ja: "ドメインの不一致（コード: 12030, 13030）"
       }
     },
     directNotPublisher: {
       title: {
-        en: "DIRECT: Seller Not Marked as PUBLISHER",
-        ja: "DIRECT: セラーがPUBLISHERとしてマークされていません"
+        en: "DIRECT: Seller Not Marked as PUBLISHER (Code: 12040, 12050)",
+        ja: "DIRECT: セラーがPUBLISHERとしてマークされていない（コード: 12040, 12050）"
       },
       description: {
-        en: "For a DIRECT relationship, the seller in sellers.json is listed as BOTH or INTERMEDIARY instead of PUBLISHER.",
-        ja: "DIRECT関係の場合、sellers.jsonファイル内のセラーがPUBLISHERではなくBOTHまたはINTERMEDIARYとしてリストされています。"
+        en: "DIRECT: Seller Not Marked as PUBLISHER (Code: 12040, 12050)",
+        ja: "DIRECT: セラーがPUBLISHERとしてマークされていない（コード: 12040, 12050）"
       }
     },
     sellerIdNotUnique: {
-      title: { en: "Seller ID Not Unique", ja: "セラーIDが一意ではありません" },
+      title: { en: "Seller ID Not Unique (Code: 12060, 13060)", ja: "セラーIDが一意ではない（コード: 12060, 13060）" },
       description: {
-        en: "Seller ID {{account_id}} appears multiple times in sellers.json for {{domain}}.",
-        ja: "セラーID {{account_id}} が {{domain}} のsellers.jsonに複数回表示されています。"
+        en: "Seller ID Not Unique (Code: 12060, 13060)",
+        ja: "セラーIDが一意ではない（コード: 12060, 13060）"
       }
     },
     resellerNotIntermediary: {
       title: {
-        en: "RESELLER: Seller Not Marked as INTERMEDIARY",
-        ja: "RESELLER: セラーがINTERMEDIARYとしてマークされていません"
+        en: "RESELLER: Seller Not Marked as INTERMEDIARY (Code: 13040, 13050)",
+        ja: "RESELLER: セラーがINTERMEDIARYとしてマークされていない（コード: 13040, 13050）"
       },
       description: {
-        en: "Seller {{account_id}} is not marked as INTERMEDIARY/BOTH in sellers.json (current type: {{seller_type}}).",
-        ja: "セラー {{account_id}} がsellers.jsonでINTERMEDIARY/BOTHとしてマークされていません（現在のタイプ: {{seller_type}}）。"
+        en: "RESELLER: Seller Not Marked as INTERMEDIARY (Code: 13040, 13050)",
+        ja: "RESELLER: セラーがINTERMEDIARYとしてマークされていない（コード: 13040, 13050）"
       }
     }
   },

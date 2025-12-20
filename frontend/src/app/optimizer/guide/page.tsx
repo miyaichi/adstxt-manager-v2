@@ -42,14 +42,17 @@ function OptimizerGuideContent() {
   // Handle scrolling to anchor if present in URL hash or query param (if needed manually)
   // React-markdown renders ids, so browser's native hash navigation should work if hash is present.
   useEffect(() => {
-    if (!loading && content) {
-      // Check if there is a hash in the URL and scroll to it
-      if (window.location.hash) {
-        const id = window.location.hash.substring(1)
-        const element = document.getElementById(id)
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" })
-        }
+    if (!loading && content && typeof window !== "undefined") {
+      const hash = window.location.hash
+      if (hash) {
+        // Wait a tick for rendering
+        setTimeout(() => {
+          const id = hash.replace("#", "")
+          const element = document.getElementById(id)
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 300)
       }
     }
   }, [loading, content])

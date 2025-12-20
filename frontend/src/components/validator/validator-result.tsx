@@ -95,6 +95,11 @@ export function ValidatorResult({ domain, type }: Props) {
     link.click()
   }
 
+  // Helper to convert camelCase to kebab-case for anchor links
+  const toKebabCase = (str: string) => {
+    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()
+  }
+
   if (!domain) {
     return (
       <div className="text-muted-foreground text-center py-20 bg-muted/20 rounded-lg">{t("common.enterDomain")}</div>
@@ -147,8 +152,8 @@ export function ValidatorResult({ domain, type }: Props) {
               <div className="text-2xl font-bold text-blue-600">
                 {data.stats.direct_count + (data.stats.reseller_count || 0) > 0
                   ? Math.round(
-                      (data.stats.direct_count / (data.stats.direct_count + (data.stats.reseller_count || 0))) * 100
-                    )
+                    (data.stats.direct_count / (data.stats.direct_count + (data.stats.reseller_count || 0))) * 100
+                  )
                   : 0}
                 %
               </div>
@@ -167,8 +172,8 @@ export function ValidatorResult({ domain, type }: Props) {
               <div className="text-2xl font-bold text-purple-600">
                 {data.stats.direct_count !== undefined && data.stats.direct_count + data.stats.reseller_count > 0
                   ? Math.round(
-                      (data.stats.reseller_count / (data.stats.direct_count + data.stats.reseller_count)) * 100
-                    )
+                    (data.stats.reseller_count / (data.stats.direct_count + data.stats.reseller_count)) * 100
+                  )
                   : 0}
                 %
               </div>
@@ -299,7 +304,9 @@ export function ValidatorResult({ domain, type }: Props) {
                         {record.has_warning ? (
                           record.validation_key ? (
                             <Link
-                              href={`/warnings#${record.validation_key}`}
+                              href={`/warnings#${toKebabCase(record.validation_key)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="text-yellow-700 hover:underline decoration-yellow-700/50 underline-offset-4 flex items-center gap-1 group"
                             >
                               <span className="truncate">{displayMessage}</span>
@@ -311,7 +318,9 @@ export function ValidatorResult({ domain, type }: Props) {
                         ) : !record.is_valid ? (
                           record.validation_key ? (
                             <Link
-                              href={`/warnings#${record.validation_key}`}
+                              href={`/warnings#${toKebabCase(record.validation_key)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="text-red-600 font-mono hover:underline decoration-red-600/50 underline-offset-4 flex items-center gap-1 group"
                             >
                               <span className="truncate">{displayMessage}</span>

@@ -38,6 +38,25 @@ export default function WarningsPage() {
     fetchContent()
   }, [language])
 
+  // Scroll to hash execution after content matches
+  useEffect(() => {
+    if (!loading && content && typeof window !== "undefined") {
+      const hash = window.location.hash
+      if (hash) {
+        // Wait a tick for rendering
+        setTimeout(() => {
+          const id = hash.replace("#", "")
+          const element = document.getElementById(id)
+          if (element) {
+            // Scroll with offset for fixed header if any (though scroll-mt usually handles it)
+            element.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 300) // Increase delay slightly to ensure markdown rendering
+      }
+    }
+  }, [loading, content])
+
+
   if (loading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
