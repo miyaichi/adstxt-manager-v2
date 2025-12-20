@@ -1,6 +1,7 @@
 "use client"
 
 import { AdviserSection } from "@/components/analytics/adviser-section"
+import { DetailedDataSection } from "@/components/analytics/detailed-data-section"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,30 +12,38 @@ import { Calendar, Globe, Search } from "lucide-react"
 import { useState } from "react"
 import useSWR from "swr"
 
-// Type definition for Analytics Data
-type AnalyticsData = {
-  domain: string
-  name?: string
-  status?: string
-  pub_description?: string
-  primary_supply_type?: string
+// Type definition for Analytics Data based on new API
+type PublisherMetadata = {
+  publisherId: string
+  publisherName: string
+  ownerDomain: string
+  domain?: string
+  status: string
+  verificationStatus: string
+  lastUpdated: string
+  contactEmail?: string
   categories?: string[]
-  rank: number | null
-  adstxt_lines: number | null
-  app_adstxt_lines: number | null
-  direct_ratio: number | null
-  reseller_ratio: number | null
-  avg_ads_in_view?: number | null
-  avg_page_weight?: number | null
-  avg_cpu?: number | null
-  total_supply_paths?: number | null
-  avg_ads_to_content_ratio?: number | null
-  avg_ad_refresh?: number | null
-  total_unique_gpids?: number | null
-  reseller_count?: number | null
-  id_absorption_rate?: number | null
-  updated_at?: string
-  similar_publishers?: number[]
+  parentEntityId?: number
+  similarPublishers?: number[]
+  metadata?: {
+    description?: string
+    primarySupplyType?: string
+    avgAdsToContentRatio?: number
+    avgAdsInView?: number
+    avgAdRefresh?: number
+    totalUniqueGpids?: number
+    idAbsorptionRate?: number
+    avgPageWeight?: number
+    avgCpu?: number
+    totalSupplyPaths?: number
+    resellerCount?: number
+  }
+}
+
+type APIResponse = {
+  publishers: PublisherMetadata[]
+  totalCount: number
+  hasMore: boolean
 }
 
 const fetcher = async (url: string) => {
@@ -42,8 +51,6 @@ const fetcher = async (url: string) => {
   if (!res.ok) {
     try {
       const errorData = await res.json()
-      // Proxy formats error as { error: string }
-      // Backend error might be nested as stringified JSON inside Proxy error
       let msg = errorData.error || "Failed to fetch data"
 
       // Attempt to parse stringified JSON error message from backend
@@ -90,10 +97,13 @@ export default function AnalyticsPage() {
     }
   }
 
-  const { data, error, isLoading } = useSWR<AnalyticsData>(
-    targetDomain ? `/api/proxy/analytics?domain=${targetDomain}` : null,
-    fetcher
-  )
+  const {
+    data: apiResponse,
+    error,
+    isLoading
+  } = useSWR<PublisherMetadata>(targetDomain ? `/api/proxy/insite/publisher?domain=${targetDomain}` : null, fetcher)
+
+  const data = apiResponse
 
   return (
     <div className="container mx-auto py-10 space-y-8 max-w-6xl">
@@ -154,16 +164,16 @@ export default function AnalyticsPage() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
                     <h2 className="text-2xl font-bold flex items-center gap-3">
-                      {data.name || data.domain}
+                      {data.publisherName || data.ownerDomain}
                       {data.status && (
                         <span
-                          className={`text-xs px-2 py-1 rounded-full border ${data.status === "available" ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-100 text-gray-600"}`}
+                          className={`text-xs px-2 py-1 rounded-full border ${data.status === "active" ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-100 text-gray-600"}`}
                         >
                           {data.status}
                         </span>
                       )}
                     </h2>
-                    <p className="text-muted-foreground mt-2 max-w-3xl">{data.pub_description}</p>
+                    <p className="text-muted-foreground mt-2 max-w-3xl">{data.metadata?.description}</p>
 
                     {data.categories && data.categories.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-4">
@@ -180,7 +190,9 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground">{t("analyticsPage.supplyType")}</p>
-                    <p className="font-semibold capitalize">{data.primary_supply_type || t("analyticsPage.unknown")}</p>
+                    <p className="font-semibold capitalize">
+                      {data.metadata?.primarySupplyType || t("analyticsPage.unknown")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -196,7 +208,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent className="relative">
                     <div className="text-3xl font-bold text-blue-700">
-                      {data.id_absorption_rate ? `${Math.round(data.id_absorption_rate * 100)}%` : "N/A"}
+                      {data.metadata?.idAbsorptionRate ? `${Math.round(data.metadata.idAbsorptionRate * 100)}%` : "N/A"}
                     </div>
                     <p className="text-xs text-blue-600/80 mt-1">{t("analyticsPage.metrics.idAbsorptionRate")}</p>
                   </CardContent>
@@ -210,7 +222,9 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.avg_ads_to_content_ratio ? `${Math.round(data.avg_ads_to_content_ratio * 100)}%` : "N/A"}
+                      {data.metadata?.avgAdsToContentRatio
+                        ? `${Math.round(data.metadata.avgAdsToContentRatio * 100)}%`
+                        : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.a2crRatio")}</p>
                   </CardContent>
@@ -224,7 +238,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.avg_ad_refresh ? `${Math.round(data.avg_ad_refresh)}s` : "N/A"}
+                      {data.metadata?.avgAdRefresh ? `${Math.round(data.metadata.avgAdRefresh)}s` : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgTime")}</p>
                   </CardContent>
@@ -238,7 +252,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.total_unique_gpids ? data.total_unique_gpids.toLocaleString() : "N/A"}
+                      {data.metadata?.totalUniqueGpids ? data.metadata.totalUniqueGpids.toLocaleString() : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.uniqueGpids")}</p>
                   </CardContent>
@@ -255,7 +269,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.avg_ads_in_view ? data.avg_ads_in_view.toFixed(2) : "N/A"}
+                      {data.metadata?.avgAdsInView ? data.metadata.avgAdsInView.toFixed(2) : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgAdsInView")}</p>
                   </CardContent>
@@ -268,7 +282,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {data.avg_page_weight ? `${Math.round(data.avg_page_weight)} MB` : "N/A"}
+                      {data.metadata?.avgPageWeight ? `${Math.round(data.metadata.avgPageWeight)} MB` : "N/A"}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgPageWeight")}</p>
                   </CardContent>
@@ -280,7 +294,9 @@ export default function AnalyticsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{data.avg_cpu ? `${data.avg_cpu.toFixed(1)}s` : "N/A"}</div>
+                    <div className="text-3xl font-bold">
+                      {data.metadata?.avgCpu ? `${data.metadata.avgCpu.toFixed(1)}s` : "N/A"}
+                    </div>
                     <p className="text-xs text-muted-foreground mt-1">{t("analyticsPage.metrics.avgCpuUsage")}</p>
                   </CardContent>
                 </Card>
@@ -292,12 +308,12 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col gap-1">
-                      <div className="text-3xl font-bold">{data.total_supply_paths || "N/A"}</div>
+                      <div className="text-3xl font-bold">{data.metadata?.totalSupplyPaths || "N/A"}</div>
                       <div className="text-xs text-muted-foreground flex justify-between">
                         <span>{t("analyticsPage.metrics.paths")}</span>
                         <span>
-                          {data.reseller_count
-                            ? `${data.reseller_count} ${t("analyticsPage.metrics.resellers")}`
+                          {data.metadata?.resellerCount
+                            ? `${data.metadata.resellerCount} ${t("analyticsPage.metrics.resellers")}`
                             : `0 ${t("analyticsPage.metrics.resellers")}`}
                         </span>
                       </div>
@@ -309,11 +325,14 @@ export default function AnalyticsPage() {
               {/* AI Adviser Section */}
               <AdviserSection analyticsData={data} />
 
+              {/* Detailed Data Section */}
+              <DetailedDataSection data={data} />
+
               <div className="text-right text-xs text-muted-foreground">
                 <span className="flex items-center justify-end gap-1">
                   <Calendar className="h-3 w-3" />
                   {t("analyticsPage.updatedAt")}{" "}
-                  {data.updated_at ? new Date(data.updated_at).toLocaleDateString() : "N/A"}
+                  {data.lastUpdated ? new Date(data.lastUpdated).toLocaleDateString() : "N/A"}
                 </span>
                 <span className="mt-1 block">{t("analyticsPage.poweredBy")}</span>
               </div>

@@ -38,18 +38,17 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
       setStatusMessage(t("adviser.status.fetchingBenchmarks"))
 
       let benchmarkData: PublisherBenchmarkMetrics | null = null
-      const similarIds: number[] = analyticsData.similar_publishers || []
+      const similarIds: number[] = analyticsData.similarPublishers || []
+
+      console.log("Similar IDs:", similarIds)
 
       if (similarIds.length > 0) {
         // Limit to top 3 similar publishers to avoid load/rate limits
         const targetIds = similarIds.slice(0, 3)
-        // Use local proxy for fetching analytics data
-        // Note: We are fetching each one sequentially or parallel
-        // Since we are in frontend, we use client fetch.
 
         try {
           const fetchPromises = targetIds.map((id) =>
-            fetch(`/api/proxy/analytics?id=${id}`)
+            fetch(`/api/proxy/insite/publisher?publisherId=${id}`)
               .then((res) => {
                 if (!res.ok) return null
                 return res.json()
@@ -58,19 +57,22 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
           )
 
           const results = await Promise.all(fetchPromises)
-          const validResults = results.filter((r) => r !== null)
+          // Extract publisher data (API returns single object now)
+          const validResults = results
+            .filter((r) => r !== null && r.publisherId)
+            .map(r => r)
 
           if (validResults.length > 0) {
             // Calculate averages
             const sum = validResults.reduce(
               (acc, curr) => ({
-                avg_ads_to_content_ratio: acc.avg_ads_to_content_ratio + (curr.avg_ads_to_content_ratio || 0),
-                avg_page_weight: acc.avg_page_weight + (curr.avg_page_weight || 0),
-                avg_ad_refresh: acc.avg_ad_refresh + (curr.avg_ad_refresh || 0),
-                reseller_count: acc.reseller_count + (curr.reseller_count || 0),
-                id_absorption_rate: acc.id_absorption_rate + (curr.direct_ratio || 0), // Note: direct_ratio maps to id_absorption_rate in our schema somewhat
-                avg_cpu: acc.avg_cpu + (curr.avg_cpu || 0),
-                avg_ads_in_view: acc.avg_ads_in_view + (curr.avg_ads_in_view || 0)
+                avg_ads_to_content_ratio: acc.avg_ads_to_content_ratio + (curr.metadata?.avgAdsToContentRatio || 0),
+                avg_page_weight: acc.avg_page_weight + (curr.metadata?.avgPageWeight || 0),
+                avg_ad_refresh: acc.avg_ad_refresh + (curr.metadata?.avgAdRefresh || 0),
+                reseller_count: acc.reseller_count + (curr.metadata?.resellerCount || 0),
+                id_absorption_rate: acc.id_absorption_rate + (curr.metadata?.idAbsorptionRate || 0),
+                avg_cpu: acc.avg_cpu + (curr.metadata?.avgCpu || 0),
+                avg_ads_in_view: acc.avg_ads_in_view + (curr.metadata?.avgAdsInView || 0)
               }),
               {
                 avg_ads_to_content_ratio: 0,
@@ -120,15 +122,15 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
 
       const payload = {
         target: {
-          name: analyticsData.name || analyticsData.domain,
-          domain: analyticsData.domain,
-          avg_ads_to_content_ratio: analyticsData.avg_ads_to_content_ratio || 0,
-          avg_page_weight: analyticsData.avg_page_weight || 0,
-          avg_ad_refresh: analyticsData.avg_ad_refresh || 0,
-          reseller_count: analyticsData.reseller_count || 0,
-          id_absorption_rate: analyticsData.id_absorption_rate || 0,
-          avg_cpu: analyticsData.avg_cpu || 0,
-          avg_ads_in_view: analyticsData.avg_ads_in_view || 0
+          name: analyticsData.publisherName || analyticsData.ownerDomain,
+          domain: analyticsData.ownerDomain,
+          avg_ads_to_content_ratio: analyticsData.metadata?.avgAdsToContentRatio || 0,
+          avg_page_weight: analyticsData.metadata?.avgPageWeight || 0,
+          avg_ad_refresh: analyticsData.metadata?.avgAdRefresh || 0,
+          reseller_count: analyticsData.metadata?.resellerCount || 0,
+          id_absorption_rate: analyticsData.metadata?.idAbsorptionRate || 0,
+          avg_cpu: analyticsData.metadata?.avgCpu || 0,
+          avg_ads_in_view: analyticsData.metadata?.avgAdsInView || 0
         },
         benchmark: {
           name: "Similar Publishers Average",

@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import adstxtApp from './api/adstxt';
 import adviserApp from './api/adviser';
 import analyticsApp from './api/analytics';
+import insiteApp from './api/insite';
 import jobsApp from './api/jobs';
 import monitorApp from './api/monitor';
 import optimizerApp from './api/optimizer';
@@ -92,6 +93,7 @@ app.route('/api/monitor', monitorApp);
 app.route('/api/analytics', analyticsApp);
 app.route('/api/optimizer', optimizerApp);
 app.route('/api/adviser', adviserApp);
+app.route('/api/insite', insiteApp);
 app.route('/api/jobs', jobsApp);
 
 // OpenAPI Docs

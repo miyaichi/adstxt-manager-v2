@@ -31,17 +31,13 @@
 - **Monitor Dashboard**: 登録ドメインのステータス管理。
 - **Sellers Explorer**: 100万件以上のSellerデータを瞬時に検索。
 - **Internationalization (i18n)**: 日本語/英語への完全対応。
+- **Validation Codes Page**: バリデーションエラーコードの詳細解説ページ (/warnings)。
+- **Insite Analytics**: OpenSincera API連携によるドメイン評価データとAIアドバイザーの提供。
 
 ## 3. 残課題・今後のタスク (Remaining Tasks)
 
 ### 優先度: 高 (High) - Feature Roadmap
-1.  **Validation Codes / Warning Page**:
-    - バリデーションエラーコードの一覧と詳細説明ページの公開。
-    - ユーザーがエラーの意味を理解しやすくする。
 
-2.  **Insite Analytics**:
-    - OpenSincera API連携によるドメイン評価データの拡充。
-    - パブリッシャー向けのインサイト情報の強化。
 
 ### 優先度: 中 (Medium)
 3.  **UI/UXの改善**: 🔄 In Progress
@@ -64,5 +60,4 @@
 
 ---
 **Next Actions**:
-1. バリデーションコードページ (Validation Codes Page) の作成。
-2. ベータテスターへの展開とフィードバック収集。
+1. ベータテスターへの展開とフィードバック収集。
