@@ -481,6 +481,7 @@ export const translations = {
           en: "Handle format errors, duplicate lines, and invalid comments.",
           ja: "フォーマットエラー、重複行、無効なコメントを処理します。"
         },
+        invalidRecords: { en: "Invalid Records", ja: "無効なレコード" },
         duplicates: { en: "Duplicates", ja: "重複" },
         remove: { en: "Remove", ja: "削除" },
         commentOut: { en: "Comment out", ja: "コメントアウト" },
