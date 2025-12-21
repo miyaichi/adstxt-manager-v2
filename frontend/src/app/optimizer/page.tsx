@@ -72,7 +72,7 @@ export default function OptimizerPage() {
     setIsFetching(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/optimizer/fetch`,
+        "/api/proxy/optimizer/fetch",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -120,7 +120,7 @@ export default function OptimizerPage() {
     const timer = setTimeout(async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/optimizer/process`,
+          "/api/proxy/optimizer/process",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -133,6 +133,7 @@ export default function OptimizerPage() {
                 removeErrors: steps.removeErrors,
                 invalidAction: steps.invalidAction,
                 duplicateAction: steps.duplicateAction,
+                normalizeFormat: steps.normalizeFormat,
                 fixOwnerDomain: steps.fixOwnerDomain,
                 fixRelationship: steps.fixRelationship,
                 fixManagerDomain: steps.fixManagerDomain,
