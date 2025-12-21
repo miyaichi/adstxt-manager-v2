@@ -48,8 +48,6 @@
 
 ### ⏭ Next Priorities
 
-### ⏭ Next Priorities
-
 1.  **API Enhancements**
     -   **Rate Limiting**: Implement Global and Per-IP rate limiting to prevent abuse.
     -   **Sellers API**: Optimized fetching (paging support, correct metadata handling).
