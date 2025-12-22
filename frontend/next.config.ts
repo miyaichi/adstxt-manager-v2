@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs"
 
 const nextConfig = {
   output: "standalone",
@@ -22,7 +22,7 @@ const nextConfig = {
     // See the following for more information:
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: true,
+    automaticVercelMonitors: true
   }
 }
 
@@ -31,7 +31,7 @@ export default withSentryConfig(nextConfig, {
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
   // Suppresses source map uploading logs during build
-  silent: true,
+  silent: true
   // org: "transparency-toolkit",
   // project: "javascript-nextjs",
-});
+})

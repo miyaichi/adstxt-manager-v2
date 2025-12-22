@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs"
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -20,10 +20,10 @@ Sentry.init({
     Sentry.replayIntegration({
       // Additional Replay configuration goes in here, for example:
       maskAllText: true,
-      blockAllMedia: true,
-    }),
+      blockAllMedia: true
+    })
   ],
 
   // Important: Environment setting
-  environment: process.env.NODE_ENV,
-});
+  environment: process.env.NODE_ENV
+})

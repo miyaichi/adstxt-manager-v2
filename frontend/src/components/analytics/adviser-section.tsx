@@ -31,9 +31,7 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
 
   // Pre-process report to fix Japanese bold rendering
   // Replace **text** with <strong>text</strong> to bypass markdown strict punctuation rules
-  const processedReport = report
-    ? report.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
-    : null
+  const processedReport = report ? report.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>") : null
 
   const handleAnalyze = async () => {
     setLoading(true)
