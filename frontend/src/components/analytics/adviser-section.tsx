@@ -148,7 +148,16 @@ export function AdviserSection({ analyticsData }: AdviserSectionProps) {
       })
 
       if (!res.ok) {
-        throw new Error(t("adviser.error.failed"))
+        let errorMessage = t("adviser.error.failed")
+        try {
+          const errorData = await res.json()
+          if (errorData.error) {
+            errorMessage += `: ${errorData.error}`
+          }
+        } catch (e) {
+          // If JSON parsing fails, use the default error message
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await res.json()

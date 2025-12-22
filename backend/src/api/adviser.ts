@@ -39,7 +39,7 @@ app.post('/analyze', zValidator('json', adviserRequestSchema), async (c) => {
     return c.json({ report });
   } catch (error) {
     console.error('Adviser API Error:', error);
-    return c.json({ error: 'Failed to generate report' }, 500);
+    return c.json({ error: error instanceof Error ? error.message : 'Failed to generate report' }, 500);
   }
 });
 

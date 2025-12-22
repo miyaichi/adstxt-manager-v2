@@ -48,6 +48,10 @@ if (process.env.NODE_ENV === 'production' && !process.env.OPENSINCERA_API_KEY) {
   console.warn('WARNING: OPENSINCERA_API_KEY is not set. Analytics features may not work.');
 }
 
+if (!process.env.GEMINI_API_KEY) {
+  console.warn('WARNING: GEMINI_API_KEY is not set. AI Adviser features will not work.');
+}
+
 import { cors } from 'hono/cors';
 
 const app = new OpenAPIHono();
