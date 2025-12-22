@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 
 // Explicit proxy for /api/proxy/insite/... -> Backend /api/insite/...
 async function proxyRequest(request: NextRequest) {
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
+  // Use 127.0.0.1 instead of localhost to avoid Node 18+ IPv6 issues
+  const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080"
 
-  // Extract path suffix. Request URL is like /api/proxy/insite/publisher
-  // path should be "publisher" (or whatever follows insite/)
-
-  const urlObj = new URL(request.url)
+  const urlObj = request.nextUrl
   const pathname = urlObj.pathname
-  // Remove /api/proxy/insite/ prefix
-  const subpath = pathname.replace(/^\/api\/proxy\/insite\//, "")
+
+  // Remove /api/proxy/insite/ prefix (handling optional trailing slash)
+  const subpath = pathname.replace(/^\/api\/proxy\/insite\/?/, "")
   const query = urlObj.search
 
-  const targetUrl = `${backendUrl}/api/insite/${subpath}${query}`
+  // Construct target URL
+  // Ensure we don't have double slashes if subpath is empty or starts with slash (though regex handles prefix)
+  const cleanSubpath = subpath.startsWith("/") ? subpath.substring(1) : subpath
+  const targetUrl = `${backendUrl}/api/insite/${cleanSubpath}${query}`
 
   console.log(`[Proxy Insite] Forwarding ${request.method} to: ${targetUrl}`)
 

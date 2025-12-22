@@ -20,7 +20,6 @@ export function ValidatorResult({ domain, type }: Props) {
 
   const { data, error, isLoading, filter, setFilter, filteredRecords } = useAdsTxtData(domain, type)
 
-
   // Download functionality
   const handleDownload = () => {
     if (!data?.records) return
@@ -131,8 +130,8 @@ export function ValidatorResult({ domain, type }: Props) {
               <div className="text-2xl font-bold text-blue-600">
                 {data.stats.direct_count + (data.stats.reseller_count || 0) > 0
                   ? Math.round(
-                    (data.stats.direct_count / (data.stats.direct_count + (data.stats.reseller_count || 0))) * 100
-                  )
+                      (data.stats.direct_count / (data.stats.direct_count + (data.stats.reseller_count || 0))) * 100
+                    )
                   : 0}
                 %
               </div>
@@ -151,8 +150,8 @@ export function ValidatorResult({ domain, type }: Props) {
               <div className="text-2xl font-bold text-purple-600">
                 {data.stats.direct_count !== undefined && data.stats.direct_count + data.stats.reseller_count > 0
                   ? Math.round(
-                    (data.stats.reseller_count / (data.stats.direct_count + data.stats.reseller_count)) * 100
-                  )
+                      (data.stats.reseller_count / (data.stats.direct_count + data.stats.reseller_count)) * 100
+                    )
                   : 0}
                 %
               </div>

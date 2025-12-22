@@ -2,15 +2,19 @@ import { NextRequest, NextResponse } from "next/server"
 
 // Explicit proxy for /api/proxy/optimizer/... -> Backend /api/optimizer/...
 async function proxyRequest(request: NextRequest) {
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
+  // Use 127.0.0.1 instead of localhost to avoid Node 18+ IPv6 issues
+  const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080"
 
-  const urlObj = new URL(request.url)
+  const urlObj = request.nextUrl
   const pathname = urlObj.pathname
-  // Remove /api/proxy/optimizer/ prefix
-  const subpath = pathname.replace(/^\/api\/proxy\/optimizer\//, "")
+
+  // Remove /api/proxy/optimizer/ prefix (handling optional trailing slash)
+  const subpath = pathname.replace(/^\/api\/proxy\/optimizer\/?/, "")
   const query = urlObj.search
 
-  const targetUrl = `${backendUrl}/api/optimizer/${subpath}${query}`
+  // Construct target URL
+  const cleanSubpath = subpath.startsWith("/") ? subpath.substring(1) : subpath
+  const targetUrl = `${backendUrl}/api/optimizer/${cleanSubpath}${query}`
 
   console.log(`[Proxy Optimizer] Forwarding ${request.method} to: ${targetUrl}`)
 

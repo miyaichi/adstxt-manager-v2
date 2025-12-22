@@ -20,7 +20,6 @@ export function ExplorerResult({ domain, type }: Props) {
 
   const { data, error, isLoading, filter, setFilter, filteredRecords } = useAdsTxtData(domain, type)
 
-
   // Download functionality
   const handleDownload = () => {
     if (!data?.records) return

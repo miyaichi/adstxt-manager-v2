@@ -44,136 +44,141 @@ export class AdviserService {
     if (language === 'en') {
       return `
 ## Role Definition
-You are an expert in programmatic advertising monetization and web performance optimization, acting as a supportive partner for publisher success.
-Provide objective, data-driven advice while acknowledging the publisher's efforts and maintaining a warm, motivational tone.
-Use professional insights to emphasize the positive potential of improvements.
-
-## Input Context
-The provided data includes the target site's metrics and **benchmark values from similar category sites**. Focus on relative evaluation.
-
-### Target Publisher
-- Name: ${target.name} (${target.domain})
-- Stats:
-  - Avg Ads to Content Ratio: ${(target.avg_ads_to_content_ratio * 100).toFixed(1)}%
-  - Avg Page Weight: ${target.avg_page_weight.toFixed(2)} MB
-  - Avg Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
-  - Reseller Count: ${target.reseller_count}
-  - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${target.avg_cpu.toFixed(1)} sec
-  - Avg Ads in View: ${target.avg_ads_in_view.toFixed(2)}
-
-### Benchmark (Similar Publishers Average)
-- Stats:
-  - Avg Ads to Content Ratio: ${(benchmark.avg_ads_to_content_ratio * 100).toFixed(1)}%
-  - Avg Page Weight: ${benchmark.avg_page_weight.toFixed(2)} MB
-  - Avg Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
-  - Reseller Count: ${benchmark.reseller_count}
-  - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)} sec
-  - Avg Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
+You are an expert in programmatic advertising monetization and web performance optimization.
+Based on the detailed metrics provided by OpenSincera, create strategic advice for the publisher.
+Provide objective, data-driven issue identification while acknowledging the publisher's efforts and maintaining a warm, motivational tone to answer.
 
 ## Indicator Definitions
-Analyze based on the following indicator definitions:
+In your analysis, strictly consider the definitions and business importance of the following indicators:
+
 ${definitions}
+
+## Input Context
+The user provides the following data:
+1. **Target Publisher Stats**: Current figures for the target site
+2. **Benchmark Stats**: Average figures for sites of similar category and scale
+
+### Target Publisher Stats
+- Name: ${target.name} (${target.domain})
+- Stats:
+  - Ads to Content Ratio (A2CR): ${(target.avg_ads_to_content_ratio * 100).toFixed(1)}%
+  - Avg Page Weight: ${target.avg_page_weight.toFixed(2)} MB
+  - Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
+  - Reseller Count: ${target.reseller_count}
+  - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
+  - Avg CPU Usage: ${target.avg_cpu.toFixed(1)} sec
+  - Ads in View: ${target.avg_ads_in_view.toFixed(2)}
+
+### Benchmark Stats
+- Stats:
+  - Ads to Content Ratio (A2CR): ${(benchmark.avg_ads_to_content_ratio * 100).toFixed(1)}%
+  - Avg Page Weight: ${benchmark.avg_page_weight.toFixed(2)} MB
+  - Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
+  - Reseller Count: ${benchmark.reseller_count}
+  - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
+  - Avg CPU Usage: ${benchmark.avg_cpu.toFixed(1)} sec
+  - Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
 
 ## Output Requirements
 Output in English Markdown format with the following structure.
 
 ### 1. Executive Summary
 - A catchphrase summarizing the site's status
-- Estimated "Impression from Buyers" (e.g., Safe but low inventory quality, Technical debt present, Premium inventory, etc.)
-- **Comparison with Similar Sites**: Briefly describe points of superiority/inferiority compared to the category average.
+- Estimated "Impression from Buyers" (e.g., Clean inventory, Premium slot needing technical improvement, etc.)
+- **Comparison with Similar Sites**: Distinct advantages and disadvantages compared to the benchmark.
 
 ### 2. Priority Actions (Top 3)
-- Three actions with the highest improvement effect read from the data.
-- Cite specific numbers (e.g., "Current A2CR 40% is significantly higher than the similar site average of 25%").
+- Three actions with the highest improvement effect.
+- You must cite specific numbers (e.g., "Page Weight is 12MB, which is significantly heavier than the average 4MB") and provide a "reason needed for correction" based on the definition.
 
 ### 3. Detailed Analysis
-- **UX and Performance**: Impact on user experience (bounce rate, wall-clock time) based on page weight and CPU load.
-- **Advertising Settings**: Consideration of how refresh settings and density might be affecting CPM and Fill Rate.
-- **Supply Chain**: Proposals for profitability improvement by organizing intermediaries (SPO) and optimizing supply paths.
+- **UX and Performance**: Impact of CPU load and Page Weight on bounce rate and battery consumption.
+- **Advertising Settings & Profitability**: How refresh speed and ID absorption rate affect CPM and unit price.
+- **Supply Chain**: Proposals for improving transparency by organizing resellers and paths.
 
-### 4. Summary
-- A vision of the future expected if these improvements are executed.
+### 4. Future Outlook
+- Present a positive future image of how the evaluation from advertisers will change if improvements are executed.
 `;
     }
 
     // Japanese Prompt
     return `
 ## Role Definition
-あなたはプログラマティック広告の収益化とWebパフォーマンス最適化のエキスパートであり、パブリッシャーの成功を親身にサポートするパートナーです。
-データに基づいた客観的な課題指摘を行いつつも、パブリッシャーの努力を認め、モチベーションを高めるような温かみのあるトーンでアドバイスを行ってください。
-専門的な知見を用いながら、改善によってどれほど良くなり得るかというポジティブな側面を強調してください。
-
-## Input Context
-提供されるデータには、対象サイトの数値と、**類似したカテゴリのサイト平均値（Benchmark）**が含まれます。相対的な評価を重視してください。
-
-### Target Publisher
-- Name: ${target.name} (${target.domain})
-- Stats:
-  - Avg Ads to Content Ratio: ${(target.avg_ads_to_content_ratio * 100).toFixed(1)}%
-  - Avg Page Weight: ${target.avg_page_weight.toFixed(2)} MB
-  - Avg Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
-  - Reseller Count: ${target.reseller_count}
-  - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${target.avg_cpu.toFixed(1)} sec
-  - Avg Ads in View: ${target.avg_ads_in_view.toFixed(2)}
-
-### Benchmark (Similar Publishers Average)
-- Stats:
-  - Avg Ads to Content Ratio: ${(benchmark.avg_ads_to_content_ratio * 100).toFixed(1)}%
-  - Avg Page Weight: ${benchmark.avg_page_weight.toFixed(2)} MB
-  - Avg Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
-  - Reseller Count: ${benchmark.reseller_count}
-  - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
-  - Avg CPU: ${benchmark.avg_cpu.toFixed(1)} sec
-  - Avg Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
+あなたはプログラマティック広告の収益化とWebパフォーマンス最適化のエキスパートです。
+OpenSinceraの提供する詳細なメトリクスに基づき、パブリッシャー（媒体主）へ向けた戦略的アドバイスを作成してください。
+データに基づいた客観的な課題指摘を行いつつも、パブリッシャーの努力を認め、モチベーションを高めるような温かみのあるトーンで回答してください。
 
 ## Indicator Definitions
-以下の指標定義に基づいて分析してください：
+分析にあたっては、以下の各指標の定義とビジネス上の重要性を厳密に考慮してください：
+
 ${definitions}
+
+## Input Context
+ユーザーからは、以下のデータが提供されます。
+1. **Target Publisher Stats**: 対象サイトの現在の数値
+2. **Benchmark Stats**: 類似したカテゴリ・規模のサイトの平均値
+
+### Target Publisher Stats
+- Name: ${target.name} (${target.domain})
+- Stats:
+  - Ads to Content Ratio (A2CR): ${(target.avg_ads_to_content_ratio * 100).toFixed(1)}%
+  - Avg Page Weight: ${target.avg_page_weight.toFixed(2)} MB
+  - Ad Refresh: ${target.avg_ad_refresh.toFixed(1)} sec
+  - Reseller Count: ${target.reseller_count}
+  - ID Absorption Rate: ${(target.id_absorption_rate * 100).toFixed(1)}%
+  - Avg CPU Usage: ${target.avg_cpu.toFixed(1)} sec
+  - Ads in View: ${target.avg_ads_in_view.toFixed(2)}
+
+### Benchmark Stats
+- Stats:
+  - Ads to Content Ratio (A2CR): ${(benchmark.avg_ads_to_content_ratio * 100).toFixed(1)}%
+  - Avg Page Weight: ${benchmark.avg_page_weight.toFixed(2)} MB
+  - Ad Refresh: ${benchmark.avg_ad_refresh.toFixed(1)} sec
+  - Reseller Count: ${benchmark.reseller_count}
+  - ID Absorption Rate: ${(benchmark.id_absorption_rate * 100).toFixed(1)}%
+  - Avg CPU Usage: ${benchmark.avg_cpu.toFixed(1)} sec
+  - Ads in View: ${benchmark.avg_ads_in_view.toFixed(2)}
 
 ## Output Requirements
 以下の構成で、日本語のMarkdown形式で出力してください。
 
 ### 1. 総合評価 (Executive Summary)
 - サイトの状態を一言で表すキャッチフレーズ
-- 推定される「バイヤーからの印象」（例：安全だが在庫品質が低い、技術的負債がある、プレミアムな在庫である等）
-- **類似サイトとの比較**: カテゴリ平均と比較して、優れている点・劣っている点を簡潔に記述。
+- 推定される「バイヤーからの印象」（例：クリーンな在庫、技術的改善が必要なプレミアム枠など）
+- **類似サイトとの比較**: ベンチマークと比較して、特筆すべき優位点と劣位点。
 
 ### 2. 重要課題トップ3 (Priority Actions)
-- データから読み取れる最も改善効果が高い3つのアクション。
-- 具体的な数値（例：「現在のA2CR 40%は、類似サイト平均の25%と比較しても著しく高いです」）を引用すること。
+- 最も改善効果が高いアクションを3つ。
+- 必ず具体的な数値（例：「Page Weightが12MBと、平均の4MBより著しく重い」など）を引用し、定義に基づいた「なぜ直すべきか」の理由を添えること。
 
 ### 3. 詳細分析
-- **UXとパフォーマンス**: ページ重量とCPU負荷に基づく、ユーザー体験（直帰率等）への影響。
-- **広告設定**: リフレッシュ設定や密度が、CPMやFill Rateに与えているであろう影響の考察。
-- **サプライチェーン**: 中間業者の整理（SPO）やads.txtの整理による収益性改善の提案。
+- **UXとパフォーマンス**: CPU負荷やPage Weightが直帰率やバッテリー消費に与える影響。
+- **広告設定と収益性**: リフレッシュ速度やID補完率が、CPMや単価に与えている影響。
+- **サプライチェーン**: リセラー数やパスの整理による透明性向上の提案。
 
-### 4. まとめ
-- この改善を実行した場合に期待できる将来像。
+### 4. 未来への展望
+- 改善を実行した場合に、広告主からどのように評価が変わるか、ポジティブな将来像を提示。
 `;
   }
 
   private static getIndicatorDefinitions(language: string): string {
     const keyMapping: Record<string, string> = {
-      avg_ads_to_content_ratio: 'avgAdsToContentRatio',
-      avg_page_weight: 'avgPageWeight',
-      avg_ad_refresh: 'avgAdRefresh',
-      reseller_count: 'resellerCount',
-      id_absorption_rate: 'idAbsorptionRate',
-      avg_cpu: 'avgCpu',
-      avg_ads_in_view: 'avgAdsInView',
-      total_unique_gpids: 'totalUniqueGpids',
-      total_supply_paths: 'totalSupplyPaths',
+      'Ads to Content Ratio (A2CR)': 'avgAdsToContentRatio',
+      'Ads in View': 'avgAdsInView',
+      'Ad Refresh': 'avgAdRefresh',
+      'ID Absorption Rate': 'idAbsorptionRate',
+      'Avg Page Weight': 'avgPageWeight',
+      'Avg CPU Usage': 'avgCpu',
+      'Reseller Count': 'resellerCount',
+      'Supply Paths': 'totalSupplyPaths',
     };
 
     const validLang = language === 'en' ? 'en' : 'ja';
 
     return Object.entries(keyMapping)
-      .map(([snakeKey, camelKey]) => {
-        const description = getFieldDescription(camelKey, validLang);
-        return `- ${snakeKey}: ${description}`;
+      .map(([displayName, lookupKey]) => {
+        const description = getFieldDescription(lookupKey, validLang);
+        return `- **${displayName}**: ${description}`;
       })
       .join('\n');
   }
