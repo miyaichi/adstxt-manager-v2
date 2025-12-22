@@ -53,13 +53,13 @@ jobs:
             --region ${{ env.REGION }} \
             --project ${{ env.PROJECT_ID }} \
             --add-cloudsql-instances ${DB_CONNECTION_NAME} \
-            --set-env-vars DATABASE_URL="postgres://postgres:${{ secrets.DB_PASSWORD }}@/${{ secrets.DB_NAME }}?host=/cloudsql/${DB_CONNECTION_NAME}",OPENSINCERA_API_KEY=${{ secrets.OPENSINCERA_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+            --set-env-vars DATABASE_URL="postgres://postgres:${{ secrets.DB_PASSWORD }}@/${{ secrets.DB_NAME }}?host=/cloudsql/${DB_CONNECTION_NAME}",OPENSINCERA_API_KEY=${{ secrets.OPENSINCERA_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
             --allow-unauthenticated
 
       # Frontend Build & Push
       - name: Build and Push Frontend
         run: |
-          docker build --platform linux/amd64 -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend:${{ github.sha }} ./frontend
+          docker build --platform linux/amd64 --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }} -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend:${{ github.sha }} ./frontend
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend:${{ github.sha }}
 
       # Frontend Deploy
@@ -69,4 +69,5 @@ jobs:
             --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/frontend:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --project ${{ env.PROJECT_ID }} \
+            --set-env-vars NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }} \
             --allow-unauthenticated
