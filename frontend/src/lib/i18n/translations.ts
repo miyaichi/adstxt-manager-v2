@@ -569,8 +569,8 @@ export const translations = {
       step6: {
         title: { en: "6. Cert. Authority ID Verification", ja: "6. 認証局IDの検証" },
         description: {
-          en: "Validate and correct certification authority IDs (4th field) based on sellers.json data",
-          ja: "sellers.jsonデータに基づいて、認証局ID（4番目のフィールド）を検証・修正します"
+          en: "Validate and correct certification authority IDs (4th field) based on sellers.json data.",
+          ja: "sellers.jsonデータに基づいて、認証局ID（4番目のフィールド）を検証・修正します。"
         }
       }
     },
