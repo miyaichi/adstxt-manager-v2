@@ -42,15 +42,35 @@ export function DetailedDataSection({ data }: DetailedDataSectionProps) {
     { key: "similarPublishers", label: t("analyticsPage.fields.similarPublishers"), anchor: "similar-publishers" },
     // Metadata fields
     { key: "metadata.description", label: t("analyticsPage.fields.description"), anchor: "description" },
-    { key: "metadata.primarySupplyType", label: t("analyticsPage.fields.primarySupplyType"), anchor: "primary-supply-type" },
-    { key: "metadata.avgAdsToContentRatio", label: t("analyticsPage.fields.avgAdsToContentRatio"), anchor: "avg-ads-to-content-ratio" },
+    {
+      key: "metadata.primarySupplyType",
+      label: t("analyticsPage.fields.primarySupplyType"),
+      anchor: "primary-supply-type"
+    },
+    {
+      key: "metadata.avgAdsToContentRatio",
+      label: t("analyticsPage.fields.avgAdsToContentRatio"),
+      anchor: "avg-ads-to-content-ratio"
+    },
     { key: "metadata.avgAdsInView", label: t("analyticsPage.fields.avgAdsInView"), anchor: "avg-ads-in-view" },
     { key: "metadata.avgAdRefresh", label: t("analyticsPage.fields.avgAdRefresh"), anchor: "avg-ad-refresh" },
-    { key: "metadata.totalUniqueGpids", label: t("analyticsPage.fields.totalUniqueGpids"), anchor: "total-unique-gpids" },
-    { key: "metadata.idAbsorptionRate", label: t("analyticsPage.fields.idAbsorptionRate"), anchor: "id-absorption-rate" },
+    {
+      key: "metadata.totalUniqueGpids",
+      label: t("analyticsPage.fields.totalUniqueGpids"),
+      anchor: "total-unique-gpids"
+    },
+    {
+      key: "metadata.idAbsorptionRate",
+      label: t("analyticsPage.fields.idAbsorptionRate"),
+      anchor: "id-absorption-rate"
+    },
     { key: "metadata.avgPageWeight", label: t("analyticsPage.fields.avgPageWeight"), anchor: "avg-page-weight" },
     { key: "metadata.avgCpu", label: t("analyticsPage.fields.avgCpu"), anchor: "avg-cpu" },
-    { key: "metadata.totalSupplyPaths", label: t("analyticsPage.fields.totalSupplyPaths"), anchor: "total-supply-paths" },
+    {
+      key: "metadata.totalSupplyPaths",
+      label: t("analyticsPage.fields.totalSupplyPaths"),
+      anchor: "total-supply-paths"
+    },
     { key: "metadata.resellerCount", label: t("analyticsPage.fields.resellerCount"), anchor: "reseller-count" },
     { key: "metadata.slug", label: t("analyticsPage.fields.slug"), anchor: "slug" }
   ]
