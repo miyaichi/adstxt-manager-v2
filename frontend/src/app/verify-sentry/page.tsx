@@ -1,7 +1,7 @@
 "use client"
 
 import * as Sentry from "@sentry/nextjs"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function VerifySentryPage() {
   const [mounted, setMounted] = useState(false)
@@ -17,7 +17,7 @@ export default function VerifySentryPage() {
   return (
     <div className="p-8 space-y-4">
       <h1 className="text-2xl font-bold">Sentry Configuration Verification</h1>
-      
+
       <div className="p-4 border rounded bg-gray-50">
         <h2 className="font-semibold">Environment Variables</h2>
         <p>
@@ -49,10 +49,22 @@ export default function VerifySentryPage() {
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           onClick={() => {
             console.log("Throwing test error...")
-            throw new Error("Sentry Frontend Verification Error")
+            throw new Error("Sentry Frontend Verification Error (Unhandled)")
           }}
         >
-          Throw Error
+          Throw Unhandled Error
+        </button>
+
+        <button
+          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          onClick={() => {
+            console.log("Capturing explicit exception...")
+            const eventId = Sentry.captureException(new Error("Sentry Frontend Verification Error (Explicit)"))
+            console.log("Captured explicit exception with Event ID:", eventId)
+            alert(`Sent explicit exception. ID: ${eventId}`)
+          }}
+        >
+          Capture Explicit Error
         </button>
       </div>
     </div>
