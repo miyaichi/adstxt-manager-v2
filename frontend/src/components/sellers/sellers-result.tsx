@@ -35,6 +35,7 @@ type SellersJsonResponse = {
     both: number
   }
   fetched_at?: string
+  total_sellers?: number
 }
 
 const fetcher = async (url: string) => {
@@ -75,7 +76,7 @@ export function SellersResult({ domain }: Props) {
 
   // 2. Fetch Paginated Data from Search API
   const { data: searchData, error: searchError, isLoading: isSearching } = useSWR(
-    domain && !isFetching // Wait for fetch/import to complete or at least start
+    domain
       ? `/api/proxy/sellers?domain=${domain}&page=${page}&limit=50&q=${filter}`
       : null,
     fetcher
