@@ -88,6 +88,8 @@ export class StreamImporter {
       // 3. Update Catalog safely
       try {
         await client.query('BEGIN');
+        // Serialize imports for the same domain to prevent race conditions (Delete vs Insert)
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [options.domain]);
 
         // DELETE existing entries
         await client.query('DELETE FROM sellers_catalog WHERE domain = $1', [options.domain]);
