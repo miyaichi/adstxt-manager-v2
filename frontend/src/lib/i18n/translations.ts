@@ -580,6 +580,8 @@ export const translations = {
       after: { en: "After", ja: "修正後" },
       lines: { en: "lines", ja: "行" },
       linesRemoved: { en: "{{count}} lines removed", ja: "{{count}} 行削除されました" },
+      linesCommented: { en: "{{count}} lines commented", ja: "{{count}} 行コメントアウトされました" },
+      linesModified: { en: "{{count}} lines modified", ja: "{{count}} 行変更されました" },
       formatErrors: { en: "{{count}} format errors", ja: "{{count}} フォーマットエラー" },
       noIssues: { en: "No issues found", ja: "問題は見つかりませんでした" },
       download: { en: "Download {{fileType}}", ja: "{{fileType}} をダウンロード" },

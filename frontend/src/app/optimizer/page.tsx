@@ -698,13 +698,13 @@ export default function OptimizerPage() {
                   {stats.commentedCount !== undefined && stats.commentedCount > 0 && (
                     <span className="flex items-center text-blue-600 font-medium">
                       <FileText className="mr-1.5 h-4 w-4" />
-                      {stats.commentedCount} lines commented
+                      {t("optimizerPage.results.linesCommented", { count: stats.commentedCount.toString() })}
                     </span>
                   )}
                   {stats.modifiedCount !== undefined && stats.modifiedCount > 0 && (
                     <span className="flex items-center text-purple-600 font-medium">
                       <Sparkles className="mr-1.5 h-4 w-4" />
-                      {stats.modifiedCount} lines modified
+                      {t("optimizerPage.results.linesModified", { count: stats.modifiedCount.toString() })}
                     </span>
                   )}
                   {stats.certAuthorityFixed !== undefined && stats.certAuthorityFixed > 0 && (
