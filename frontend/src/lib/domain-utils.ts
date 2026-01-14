@@ -1,9 +1,12 @@
-import psl from "psl"
-
+/**
+ * Extract hostname from URL input.
+ * Preserves subdomains (e.g., "dot.asahi.com" stays "dot.asahi.com").
+ * Only removes protocol, path, query, fragment, and port.
+ */
 export function extractRootDomain(input: string): string {
   if (!input) return ""
 
-  let domain = input.trim()
+  let domain = input.trim().toLowerCase()
 
   // Remove protocol
   domain = domain.replace(/^https?:\/\//i, "")
@@ -19,13 +22,5 @@ export function extractRootDomain(input: string): string {
   // Simple regex for :port at the end of the domain part
   domain = domain.replace(/:\d+$/, "")
 
-  const parsed = psl.parse(domain)
-
-  if (parsed.error) {
-    // If PSL parsing fails (e.g. internal domain or invalid), return the sanitized input as fallback
-    // checking if it looks like a domain at least?
-    return domain
-  }
-
-  return parsed.domain || domain
+  return domain
 }

@@ -68,12 +68,15 @@ This starts PostgreSQL (port 5433) and the Backend API.
 *Note: Check `docker-compose.yml` for the exposed backend port (default maps 3000->3002).*
 
 ### 2. Frontend Setup
-Create a `.env.local` file in the `frontend` directory if your backend is not running on the default `http://127.0.0.1:8080`.
+Create a `.env.local` file in the `frontend` directory to configure the backend URL.
 
 ```bash
 # frontend/.env.local
-# Example if running backend via Docker (port 3002)
+# When running backend via Docker Compose (default)
 BACKEND_URL=http://localhost:3002
+
+# Or if running backend locally with PORT=8080
+# BACKEND_URL=http://localhost:8080
 ```
 
 Run the frontend:
@@ -87,10 +90,16 @@ Access the application at [http://localhost:3000](http://localhost:3000).
 ### 3. Backend Setup (Optional for dev)
 If you want to run the backend locally instead of via Docker:
 ```bash
+# Stop the Docker backend first
+docker compose stop backend
+
 cd backend
 npm install
 # Set env vars and run (Default port 3000, or override with PORT)
-DATABASE_URL=postgres://postgres:password@localhost:5433/adstxt_v2 PORT=8080 OPENSINCERA_API_KEY=your_key npm run dev
+DATABASE_URL=postgres://postgres:password@localhost:5433/adstxt_v2 PORT=8080 npm run dev
+
+# Optional: Set OPENSINCERA_API_KEY for analytics features
+# Optional: Set GEMINI_API_KEY for AI Adviser features
 ```
 
 ## Deployment
